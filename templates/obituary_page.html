@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+
+        <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+        Remove this if you use the .htaccess -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+        <title>deceased_page</title>
+        <meta name="description" content="" />
+        <meta name="author" content="Patrick Walsh" />
+
+        <!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        
+        <link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
+    </head>
+
+    <body>
+        <div class="navbar">
+          <div class="navbar-inner">
+            <a class="brand" href="/">GeoTombstone</a>
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+              {% if admin == True %}
+              <li><a href="/admin/users">Admin</a></li>
+              {% endif %}
+              {% if logged_in == True%}
+              <li><a href="/log_out">Log Out</a></li>
+              {% else %}
+              <li><a href="/log_in">Log In</a></li>
+              <li><a href="/create_account">Create Account</a></li>
+              {% endif %}
+              
+            </ul>
+          </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div id="obit-photo">
+                    <div class="span4">
+                        {% for photo_url in obituary.get_photo_urls() %}
+                            <img src="{{ photo_url }}" />
+                        {% endfor %}
+                    </div>
+                </div>
+                <div id="obit-data" class="span4">
+                    {% if editable %}
+                    <form method="post" action="{{ upload_photo_url }}" enctype="multipart/form-data">
+                        Upload another image
+                        <input type="file" name="image" />
+                        <input type="submit" class="btn" />
+                    </form>
+                    {% endif %}
+                    <h4>{{obituary.name}}</h4>
+                    <p>Born {{ obituary.dob }}{% if obituary.pob %}, {{ obituary.pob }}{% endif %}</p>
+                    <p>Died {{ obituary.dod }}{% if obituary.pod %}, {{ obituary.pod }}{% endif %}</p>
+                    {% if obituary.tombstone_message %}
+                    <p>"{{ obituary.tombstone_message }}"</p>
+                    {% endif %}
+                    {% if editable %}
+                    <button class="btn">Edit</button>
+                    <form method="post" action="{{ edit_data_url }}"><!--action="/obituary/{{ obituary.key.id() }}"-->
+                    Name:<input type="text" name="name" value="{{ obituary.name }}" placeholder="Name"><br />
+                    DOB:<input type="text" name="dob" value="{{ obituary.dob_web }}" placeholder="MM/DD/YYYY"><br />
+                    DOD:<input type="text" name="dod" value="{{ obituary.dod_web }}" placeholder="MM/DD/YYYY"><br />
+                    POB:<input type="text" name="pob" value="{{ obituary.pob }}" placeholder="Boston, MA"><br />
+                    POD:<input type="text" name="pod" value="{{ obituary.pod }}" placeholder="San Diego, CA"><br />
+                    Epitaph:<input type="text" name="tombstone_message" value="{{ obituary.tombstone_message }}" />
+                    <input type="submit" class="btn" name="submit" value="Submit">
+                    {% endif %}
+                </form>
+                </div>
+            </div>
+            <div class="row">
+                <div class="span8 offset4">
+                    <h3>Narratives about this person</h3>
+                    {% for n in narratives %}
+                        <h5>{{n.author_name}}</h5>
+                        <div>{{n.message}}</div>
+                    {% endfor %}
+                    {% if editable %}
+                        <form method="post" action="{{ add_narrative_url }}">
+                            <input type="text" name="author_name" placeholder="Your name" />
+                            <br />
+                            <textarea name="message" placeholder="Share a story about this person."></textarea>
+                            <br />
+                            <button class="btn" id="add-narratives">Add a story</button>
+                        </form>
+                    {% endif %}
+                </div>
+                <div class="span8 offset4">
+                    <h3>Messages to loved ones</h3>
+                    {% for m in messages %}
+                        <h5>{{m.author_name}}</h5>
+                        <div>{{m.message}}</div>
+                    {% endfor %}
+                    {% if editable %}
+                        <form method="post" action="{{ add_message_url }}">
+                            <input type="text" name="author_name" placeholder="Your name"/>
+                            <br />
+                            <textarea name="message" placeholder="Leave a message for loved ones."></textarea>
+                            <br />
+                            <button class="btn" id="add-message">Leave a message</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

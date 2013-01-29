@@ -1,0 +1,40 @@
+application: geotombstone
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: true
+default_expiration: "1m"
+
+handlers:
+- url: /api/.*
+  script: api.app
+- url: /photo/.*
+  script: photo.app
+- url: /admin.*
+  script: admin.app
+  login: admin
+
+#tasks and cronjobs
+- url: /tasks.*
+  script: tasks.app
+  login: admin
+
+- url: /stats.*
+  script: google.appengine.ext.appstats.ui.app
+  
+- url: /img
+  static_dir: img
+- url: /css
+  static_dir: css
+- url: /js
+  static_dir: js
+ 
+ 
+
+# all the other handlers
+- url: /.*
+  script: website.app
+
+libraries:
+- name: jinja2
+  version: latest
