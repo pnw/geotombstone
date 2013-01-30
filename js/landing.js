@@ -35,7 +35,7 @@ function doSearchResponse(response){
 	
 	if (results.length == 0){
 		$("#noresults").show()
-	} else{
+	}else{
 		$("#noresults").hide()
 		var bounds = new google.maps.LatLngBounds();
 		for (var i=0;i<results.length;i++){
@@ -55,8 +55,23 @@ function doSearchResponse(response){
 			content += '<a href="'+obit.obituary_url+'">Full Info</a></div>';
 			attachOverlay(marker,content);
 		}
+		
+		// Set minimum zoom on fitBounds
+		google.maps.event.addListener(map, 'zoom_changed', function() {
+			zoomChangeBoundsListener = google.maps.event.addListener(map, 'bounds_changed', function(event) {
+				if (this.getZoom() > 15 && this.searchZoom == true) {
+					// Change max/min zoom here
+							this.setZoom(15);
+							this.initialZoom = false;
+						}
+					google.maps.event.removeListener(zoomChangeBoundsListener);
+				});
+			});
+		// set flag for zoom_changed because of search result
+		map.searchZoom = true;
+		// fit bounds to the markers
 		map.fitBounds(bounds);
-	}
+		}
 
 }
 function doSearch(lat,lon){
