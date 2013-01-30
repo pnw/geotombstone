@@ -71,7 +71,7 @@ function doSearchResponse(response){
 		map.searchZoom = true;
 		// fit bounds to the markers
 		map.fitBounds(bounds);
-		}
+	}
 
 }
 function doSearch(lat,lon){
