@@ -113,8 +113,8 @@
                 <div id="obit-data" class="span8">
                 	<div class="topdata">
                     <h4 class="lead bigname">{{obituary.name}}</h4>
-                    <p class="lead smaller" style="margin-top: 20px;">Born {{ obituary.dob }}{% if obituary.pob %} in {{ obituary.pob }}{% endif %}</p>
-                    <p class="lead smaller" style="margin-top: 10px;">Passed away {{ obituary.dod }}{% if obituary.pod %} in {{ obituary.pod }}{% endif %}</p>
+                    <p class="lead smaller" style="margin-top: 20px;">Born {{ obituary.dob_web }}{% if obituary.pob %} in {{ obituary.pob }}{% endif %}</p>
+                    <p class="lead smaller" style="margin-top: 10px;">Passed away {{ obituary.dod_web }}{% if obituary.pod %} in {{ obituary.pod }}{% endif %}</p>
                     {% if obituary.tombstone_message %}
                     <p class="lead"  style="margin-top: 20px;">"{{ obituary.tombstone_message }}"</p>
                     {% endif %}
