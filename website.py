@@ -61,7 +61,7 @@ class SearchHandler(handlers.WebHandler):
 			
 			user = self.get_user_from_session()
 			response = {
-					'results' : [o.package() for o in obits],
+					'results' : [o.package(web=True) for o in obits],
 					'logged_in' : True if user else False
 					}
 		except self.InputError,e:

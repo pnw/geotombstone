@@ -122,7 +122,7 @@ class Obituary(BaseModel):
 		return Photo.query(ancestor = self.key).iter()
 	def get_photo_urls(self):
 		return [i.img_url for i in self.photos]
-	def package(self,uploader = None,messages = None, narratives = None):
+	def package(self,uploader = None,messages = None, narratives = None,web=False):
 		'''
 		Packages an obituary into a dict for the phone
 		@rtype: dicts
@@ -131,8 +131,8 @@ class Obituary(BaseModel):
 					'oid' : self.key.id(),
 					'geo_point' : self.geo_point,
 					'name' : self.name or '',
-					'dob' : str(self.dob) or '',
-					'dod' : str(self.dod) or '',
+					'dob' : str(self.dob or '') if web is False else str(self.dob_web() or ''),
+					'dod' : str(self.dod or '') if web is False else str(self.dod_web() or ''),
 					'pob' : self.pob or '',
 					'pod' : self.pod or '',
 					'tombstone_message' : self.tombstone_message or '',
