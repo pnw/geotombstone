@@ -6,8 +6,7 @@ google.maps.Map.prototype.clearOverlays = function(){
 		markersArray[i].setMap(null);
 	}
 }
-function placeMarker(lat,lon){
-	var location = new google.maps.LatLng(lat,lon);
+function placeMarker(location){
 	var marker = new google.maps.Marker({
 		position : location,
 		map : map
@@ -33,19 +32,29 @@ function doSearchResponse(response){
 	var results = response.results;
 	var loggedIn = response.logged_in;
 	r = results; // debug
-	for (var i=0;i<results.length;i++){
-		obit = results[i]
-		// extract the obituary location
-		var geoPoint = obit.geo_point;
-		var lat = geoPoint.lat;
-		var lon = geoPoint.lon;
-		// add the marker to the map
-		marker = placeMarker(lat,lon);
-		// attach the overlay to the marker
-		content = '<div class="overlay-container">';
-		content += '<p>'+obit.name+'</p>';
-		content += '<a href="'+obit.obituary_url+'">Full Info</a></div>';
-		attachOverlay(marker,content);
+	if (results.length != 0){
+		var bounds = new google.maps.LatLngBounds();
+		for (var i=0;i<results.length;i++){
+			obit = results[i]
+			// extract the obituary location
+			var geoPoint = obit.geo_point;
+			var lat = geoPoint.lat;
+			var lon = geoPoint.lon;
+			var location = new google.maps.LatLng(lat,lon);
+			// add the marker to the map
+			marker = placeMarker(location);
+			// add the location to the bounds calculator
+			bounds.extend(location);
+			// attach the overlay to the marker
+			content = '<div class="overlay-container">';
+			content += '<p>'+obit.name+'</p>';
+			content += '<a href="'+obit.obituary_url+'">Full Info</a></div>';
+			attachOverlay(marker,content);
+		}
+		map.fitBounds(bounds);
+	}
+	else{ // results.length == 0
+		alert('Empty results!')
 	}
 }
 function doSearch(lat,lon){

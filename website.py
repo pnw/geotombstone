@@ -57,6 +57,8 @@ class SearchHandler(handlers.WebHandler):
 			obits = self.full_search()
 			# only take top 50 matched obits
 			obits = list(obits)[:75]
+			
+			
 			user = self.get_user_from_session()
 			response = {
 					'results' : [o.package() for o in obits],

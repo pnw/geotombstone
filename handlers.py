@@ -135,7 +135,8 @@ class BaseHandler(webapp2.RequestHandler):
 		@type dob: datetime.date
 		@param dod: date of death
 		@type dod: datetime.date
-		@return: a list of 
+		@return: a list of obituary entities
+		@rtype: list
 		'''
 		qry = models.Obituary.query()
 		if search_tokens:
