@@ -52,7 +52,7 @@ function doSearchResponse(response){
 			bounds.extend(location);
 			// attach the overlay to the marker
 			content = '<div class="overlay-container">';
-			if (obit.dod != ''){
+			if (obit.photo_urls.length > 0){
 				content += '<img class="photo_thumb img-rounded" src="'+obit.photo_urls[0]+'" />';
 			}
 			content += '<p class="obit-name lead">'+obit.name+'</p>';
