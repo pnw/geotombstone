@@ -40,8 +40,8 @@ class Photo(BaseModel):
 		assert self.key.parent()
 	@property
 	def img_url(self):
-# 		return '{}/photo/{}?p={}'.format(utils.BASE_URL,self.key.parent().id(),self.key.id())
-		return '{}/photo/{}?p={}'.format("",self.key.parent().id(),self.key.id())
+		return '{}/photo/{}?p={}'.format(utils.BASE_URL,self.key.parent().id(),self.key.id())
+#		return '{}/photo/{}?p={}'.format("",self.key.parent().id(),self.key.id())
 class Obituary(BaseModel):
 	'''
 	A record of someones tombstone
