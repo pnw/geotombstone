@@ -7,7 +7,7 @@
         Remove this if you use the .htaccess -->
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
-        <title>deceased_page</title>
+        <title>{{obituary.name}}</title>
         <meta name="description" content="" />
         <meta name="author" content="Patrick Walsh" />
 
@@ -16,6 +16,65 @@
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         
         <link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
+        
+        <style type="text/css">
+	        .smaller{
+	        	font-size: 12pt;
+		        line-height: 120%;
+		        margin-bottom: 0px;
+	        }
+	        
+	        .headleader{
+		        margin-top: 50px;
+	        }
+	        
+	        .obit_img{
+		        margin-bottom: 20px;
+	        }
+	        
+	        .uploadimage{
+				overflow: auto;	        
+			}
+			
+			.editform{
+				margin-top: 20px;
+			}
+			
+			.btnsaveedit{
+				float: right;
+			}
+			
+			textarea{
+				width: 300px;
+				height: 100px;
+			}
+			
+			.bump-right{
+				margin-left: 20px;
+			}
+			
+			.name{
+				font-weight: 400;
+				font-size: 12pt;
+				color: #4e4e4e;
+			}
+			
+			.msg{
+				color: #575757;
+			}
+			
+			.topdata{
+				text-align: center;
+				margin-top: 50px;
+			}
+			
+			.bigname{
+				font-size: 22pt;
+				line-height: 120%;
+			}
+        </style>
+        
+        
     </head>
 
     <body>
@@ -39,75 +98,114 @@
         </div>
         <div class="container">
             <div class="row">
-                <div id="obit-photo">
-                    <div class="span4">
+            	<div class="span4">
                         {% for photo_url in obituary.get_photo_urls() %}
-                            <img src="{{ photo_url }}" />
+                            <img class="obit_img img-rounded" src="{{ photo_url }}" />
                         {% endfor %}
-                    </div>
-                </div>
-                <div id="obit-data" class="span4">
-                    {% if editable %}
-                    <form method="post" action="{{ upload_photo_url }}" enctype="multipart/form-data">
-                        Upload another image
-                        <input type="file" name="image" />
-                        <input type="submit" class="btn" />
-                    </form>
-                    {% endif %}
-                    <h4>{{obituary.name}}</h4>
-                    <p>Born {{ obituary.dob }}{% if obituary.pob %}, {{ obituary.pob }}{% endif %}</p>
-                    <p>Died {{ obituary.dod }}{% if obituary.pod %}, {{ obituary.pod }}{% endif %}</p>
+                        {% if editable %}
+	                    <form class="uploadimage well" method="post" action="{{ upload_photo_url }}" enctype="multipart/form-data">
+	                        <p class="lead">Upload another image</p>
+	                        <input type="file" name="image"/>
+	                        <input type="submit" class="btn btn-info" style="margin-top: 20px; float:right;" value="Upload Image"/>
+	                    </form>
+	                    {% endif %}
+            	</div>
+                <div id="obit-data" class="span8">
+                	<div class="topdata">
+                    <h4 class="lead bigname">{{obituary.name}}</h4>
+                    <p class="lead smaller" style="margin-top: 20px;">Born {{ obituary.dob }}{% if obituary.pob %} in {{ obituary.pob }}{% endif %}</p>
+                    <p class="lead smaller" style="margin-top: 10px;">Passed away {{ obituary.dod }}{% if obituary.pod %} in {{ obituary.pod }}{% endif %}</p>
                     {% if obituary.tombstone_message %}
-                    <p>"{{ obituary.tombstone_message }}"</p>
+                    <p class="lead"  style="margin-top: 20px;">"{{ obituary.tombstone_message }}"</p>
                     {% endif %}
                     {% if editable %}
-                    <button class="btn">Edit</button>
-                    <form method="post" action="{{ edit_data_url }}"><!--action="/obituary/{{ obituary.key.id() }}"-->
-                    Name:<input type="text" name="name" value="{{ obituary.name }}" placeholder="Name"><br />
-                    DOB:<input type="text" name="dob" value="{{ obituary.dob_web }}" placeholder="MM/DD/YYYY"><br />
-                    DOD:<input type="text" name="dod" value="{{ obituary.dod_web }}" placeholder="MM/DD/YYYY"><br />
-                    POB:<input type="text" name="pob" value="{{ obituary.pob }}" placeholder="Boston, MA"><br />
-                    POD:<input type="text" name="pod" value="{{ obituary.pod }}" placeholder="San Diego, CA"><br />
-                    Epitaph:<input type="text" name="tombstone_message" value="{{ obituary.tombstone_message }}" />
-                    <input type="submit" class="btn" name="submit" value="Submit">
+                    <button id="editbtn" class="btn btn-info">Edit Information</button>
                     {% endif %}
-                </form>
-                </div>
-            </div>
-            <div class="row">
-                <div class="span8 offset4">
-                    <h3>Narratives about this person</h3>
+                	</div>
+                    {% if editable %}
+                    <div class="editform collapse">
+                    <form class="well" method="post" action="{{ edit_data_url }}"><!--action="/obituary/{{ obituary.key.id() }}"-->
+                    <label>Name:</label><input type="text" name="name" value="{{ obituary.name }}" placeholder="Name"><br />
+                    <label>Date Born:</label><input type="text" name="dob" value="{{ obituary.dob_web }}" placeholder="MM/DD/YYYY"><br />
+                    <label>Date Deceased:</label><input type="text" name="dod" value="{{ obituary.dod_web }}" placeholder="MM/DD/YYYY"><br />
+                    <label>Place Born:</label><input type="text" name="pob" value="{{ obituary.pob }}" placeholder="Boston, MA"><br />
+                    <label>Place Deceased:</label><input type="text" name="pod" value="{{ obituary.pod }}" placeholder="San Diego, CA"><br />
+                    <label>Epitaph:</label><input type="text" name="tombstone_message" value="{{ obituary.tombstone_message }}" />
+                    <input type="submit" class="btn btn-success btnsaveedit" name="submit" value="Save Changes">
+                    </form>
+                    </div>
+                    {% endif %}
+                    <h3 class="headleader lead">Narratives about this person</h3>
                     {% for n in narratives %}
-                        <h5>{{n.author_name}}</h5>
-                        <div>{{n.message}}</div>
+                    	<div class="bump-right">
+                        <h5 class="name">{{n.author_name}}</h5>
+                        <p class="msg bump-right">{{n.message}}</p>
+                        <hr>
+                        </div>
+                    {% else %}
+                    <div class="alert alert-info"><p class="lead smaller">No narratives have been added yet.</p></div>
                     {% endfor %}
                     {% if editable %}
-                        <form method="post" action="{{ add_narrative_url }}">
-                            <input type="text" name="author_name" placeholder="Your name" />
+                        <form method="post" class="bump-right" style="margin-top: 30px;" action="{{ add_narrative_url }}">
+                            <input type="text" id="name1" name="author_name" placeholder="Your name" />
                             <br />
-                            <textarea name="message" placeholder="Share a story about this person."></textarea>
+                            <textarea name="message" id="text1" placeholder="Share a story about this person."></textarea>
                             <br />
-                            <button class="btn" id="add-narratives">Add a story</button>
+                            <button class="btn btn-info btn-large" id="add-narratives" disabled>Add a story</button>
                         </form>
                     {% endif %}
-                </div>
-                <div class="span8 offset4">
-                    <h3>Messages to loved ones</h3>
+                    <h3 class="headleader lead">Messages to loved ones</h3>
                     {% for m in messages %}
-                        <h5>{{m.author_name}}</h5>
-                        <div>{{m.message}}</div>
+                    	<div class="bump-right">
+                        <h5 class="name">{{m.author_name}}</h5>
+                        <p class="msg bump-right">{{m.message}}</p>
+                    	<hr>
+                    	</div>
+                    {% else %}
+                    <div class="alert alert-info"><p class="lead smaller">No messages have been added yet.</p></div>
                     {% endfor %}
                     {% if editable %}
-                        <form method="post" action="{{ add_message_url }}">
-                            <input type="text" name="author_name" placeholder="Your name"/>
+                        <form method="post" class="bump-right" style="margin-top: 30px;" action="{{ add_message_url }}">
+                            <input type="text" id="name2" name="author_name" placeholder="Your name"/>
                             <br />
-                            <textarea name="message" placeholder="Leave a message for loved ones."></textarea>
+                            <textarea name="message" id="text2" placeholder="Leave a message for loved ones."></textarea>
                             <br />
-                            <button class="btn" id="add-message">Leave a message</button>
+                            <button class="btn btn-info btn-large" id="add-message" disabled>Leave a message</button>
                         </form>
                     {% endif %}
                 </div>
             </div>
         </div>
+        
+		<script type="text/javascript" src="../js/jquery.min.js"></script>
+		<script type="text/javascript" src="../js/bootstrap.min.js"></script>
+		<script type="text/javascript">
+		$(document).on("ready",function(){
+			$(".editform").collapse({
+				toggle	:	false
+			})
+			
+			$("#editbtn").click(function(){
+				$(".editform").collapse("toggle")
+			})
+			
+			$("input,textarea").keyup(function(){
+				if($("#name1").val().length > 0 && $("#text1").val().length > 0){
+					$("#add-narratives").attr("disabled",false)
+				} else{
+					$("#add-narratives").attr("disabled","disabled")
+				}
+				
+				if($("#name2").val().length > 0 && $("#text2").val().length > 0){
+					$("#add-message").attr("disabled",false)
+				} else{
+					$("#add-message").attr("disabled","disabled")
+				}
+				
+			})
+			
+			
+		})
+		</script>
     </body>
 </html>

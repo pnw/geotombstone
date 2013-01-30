@@ -20,9 +20,59 @@
         <![endif]-->
         <!-- GOOGLE MAPS, BITCHES -->
         <style type="text/css">
-          html { height: 100% }
-          body { height: 100%; margin: 0; padding: 0 }
-          #map_canvas { height: 100% }
+          html { height: 100%; }
+          body { height: 100%; margin: 0; padding:0;}
+          #map_canvas { 
+          	height: 100%;
+          	width: 100%;
+          	position: absolute;
+          	z-index: 4;
+          	top: 0;
+          }
+          
+          .sidebar{
+	          position: absolute;
+	          z-index: 5;
+	          height: 100%;
+	          top:0;
+	          background-color: rgba(255,255,255,0.85);
+	          padding-left: 20px;
+	          padding-right: 20px;
+          }
+          
+          .side-lead{
+          	  margin-top: 70px;
+	          text-align: center;
+          }
+          
+          input{
+	          font-size: 14pt !important;
+	          line-height: 120%;
+          }
+          
+          input[type=submit]{
+	          
+          }
+          
+          .brand{
+	          margin-left: 0px !important;
+          }
+          
+          .overlay-container{
+	          text-align: center;
+          }
+          
+          .obit-name{
+	          margin-bottom: 10px;
+	          margin-top: 10px;
+          }
+          
+          .photo_thumb{
+	          height:80px;
+          }
+          
+          
+          
         </style>
         <script type="text/javascript"
           src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCI2IPaNDkuFKIxZdfTvABG3N7CiG9GgDM&sensor=true">
@@ -37,8 +87,33 @@
           function initialize() {
             var mapOptions = {
               center: new google.maps.LatLng(initLat,initLon),
-              zoom: 8,
-              mapTypeId: google.maps.MapTypeId.ROADMAP
+              zoom: 7,
+              mapTypeId: google.maps.MapTypeId.ROADMAP,
+              
+				mapTypeControl: true,
+				mapTypeControlOptions: {
+				    style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+				    position: google.maps.ControlPosition.BOTTOM_CENTER
+				},
+				panControl: true,
+				panControlOptions: {
+				    position: google.maps.ControlPosition.RIGHT_CENTER
+				},
+				zoomControl: true,
+				zoomControlOptions: {
+				    style: google.maps.ZoomControlStyle.LARGE,
+				    position: google.maps.ControlPosition.RIGHT_CENTER
+				},
+				scaleControl: true,
+				scaleControlOptions: {
+				    position: google.maps.ControlPosition.TOP_LEFT
+				},
+				streetViewControl: false,
+				streetViewControlOptions: {
+				    position: google.maps.ControlPosition.LEFT_TOP
+				}
+    
+    
             };
             map = new google.maps.Map(document.getElementById("map_canvas"),
                 mapOptions);
@@ -52,7 +127,7 @@
     
     
      <body onload="initialize()">
-        <div class="navbar">
+        <div class="navbar navbar-fixed-top">
           <div class="navbar-inner">
             <a class="brand" href="/">GeoTombstone</a>
             <ul class="nav">
@@ -70,19 +145,21 @@
             </ul>
           </div>
         </div>
-        <div class="sidebar" style="float:left;margin-right: 20px;margin-left: 20px;">
+        <div class="sidebar">
+        	<p class="lead side-lead"><strong>Search</strong></p>
             <form id="searchForm" onsubmit="doSearch();return false;">
+            	<div id="noresults" class="alert alert-danger" hidden>No results found.</div>
                 <div class="control-group">
                     <label class="control-label" for="deceased_name">Name</label>
-                    <input type="text" id="deceased_name" name="deceased_name" placeholder="George Clooney"/>
+                    <input type="text" id="deceased_name" name="deceased_name" placeholder="Name"/>
                 </div>
                 <div class="control-group">
                     <label class="control-label" for="pob">Place of Birth</label>
-                    <input type="text" id="pob" name="pob" placeholder="Boston, MA"/>
+                    <input type="text" id="pob" name="pob" placeholder="City"/>
                 </div>
                 <div class="control-group">
                     <label class="control-label" for="pod">Place of Death</label>
-                    <input type="text" id="pod" name="pod" placeholder="Outer Space"/>
+                    <input type="text" id="pod" name="pod" placeholder="City"/>
                 </div>
                 <div class="control-group">
                     <label class="control-label" for="dob">Date of Birth</label>
@@ -92,10 +169,10 @@
                     <label class="control-label" for="dod"> Date of Death</label>
                     <input type="text" id="dod" name="dod" placeholder="MM/DD/YYYY"/>
                 </div>
-                <input type="submit" value="Search"/>
+                <input type="submit" class="btn btn-success btn-search btn-block btn-large" value="Search"/>
             </form>
         </div>
-            <div id="map_canvas" style="width:80%; height:90%"></div>
+        <div id="map_canvas"></div>
 
       </body>
       

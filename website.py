@@ -313,12 +313,16 @@ class CreateAccountHandler(handlers.WebHandler):
 			'''Email already exists'''
 		class PWDontMatch(Exception):
 			'''Passwords dont match'''
+		class PWLength(Exception):
+			'''Passwords must be at least 6 characters'''
 		try:
 			email = self.rget('email',str,True)
 			pw = self.rget('pw',str,True)
 			pw_2 = self.rget('pw_2',str,True)
 			if pw != pw_2:
 				raise PWDontMatch
+			elif len(pw) < 6:
+				raise PWLength
 			existing_user = models.WebUser.query(models.WebUser.email == email).get()
 			if existing_user is not None:
 				raise EmailExists
@@ -336,6 +340,10 @@ class CreateAccountHandler(handlers.WebHandler):
 		except EmailExists:
 			ref = self.request.referrer.split('?')[0]
 			new_url = '{}?error=email'.format(ref)
+			return self.redirect(new_url)
+		except PWLength:
+			ref = self.request.referrer.split('?')[0]
+			new_url = '{}?error=length'.format(ref)
 			return self.redirect(new_url)
 #		except self.InputError,e:
 #			ref = self.request.referrer.split('?')[0]

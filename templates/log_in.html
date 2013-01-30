@@ -1,28 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
+  <head>
+    <meta charset="utf-8">
+    <title>Login</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-        <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
-        Remove this if you use the .htaccess -->
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <!-- Le styles -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+      /* Override some defaults */
+      html, body {
+        background-color: #eee;
+      }
+      body {
+/*         padding-top: 40px;  */
+      }
+      .container {
+        width: 300px;
+        margin-top: 150px;
+      }
 
-        <title>Log in</title>
-        <meta name="description" content="" />
-        <meta name="author" content="Patrick Walsh" />
+      /* The white background content wrapper */
+      .container > .content {
+        background-color: #fff;
+        padding: 20px;
+        margin: 0 -20px; 
+        -webkit-border-radius: 10px 10px 10px 10px;
+           -moz-border-radius: 10px 10px 10px 10px;
+                border-radius: 10px 10px 10px 10px;
+        -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+           -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+                box-shadow: 0 1px 2px rgba(0,0,0,.15);
+      }
 
-        <meta name="viewport" content="width=device-width; initial-scale=1.0" />
+	  .login-form {
+		margin-left: 65px;
+	  }
+	
+	  legend {
+		margin-right: -50px;
+		font-weight: bold;
+	  	color: #404040;
+	  }
+	  
+	  .forgot{
+		  margin-top: 10px;
+	  }
 
-        <!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        
-        <link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
-    </head>
+    </style>
 
-    <body>
-        <div>
-            <div class="navbar">
+</head>
+<body>
+	
+	<div class="navbar">
               <div class="navbar-inner">
                 <a class="brand" href="/">GeoTombstone</a>
                 <ul class="nav">
@@ -39,20 +70,31 @@
                 </ul>
               </div>
             </div>
-            <div class="container">
-                <form method="post" action="{{ post_url }}">
-                <label>
-                    <input type="text" name="email" placeholder="zuck@facebook.com"/>
-                </label>
-                <label>
-                    <input type="text" name="pw" placeholder="secretPassword197"/>
-                </label>
-                {% if error == True%}
-                <span class="error">Invalid email/password combination.</span> <br />
-                {% endif %}
-                <input type="submit" class="btn"/>
-            </form>
-            </div>
-        </div>
-    </body>
+	
+	<div class="container">
+		<div class="content">
+			{% if error %}
+				<div class="alert alert-danger">Invalid username/password. Please try again.</div>
+			{%endif%}
+			<div class="row">
+				<div class="login-form">
+					
+					<h2>Login</h2>
+					<form action="{{ post_url }}" method="post">
+						<fieldset>
+							<div class="clearfix">
+								<input type="text" placeholder="Email" name="email" value="{{email}}">
+							</div>
+							<div class="clearfix">
+								<input type="password" placeholder="Password" name="pw">
+							</div>
+							<button class="btn btn-primary" type="submit">Sign in</button>
+							<p class="forgot"><a id="forgotpw">Forgot password</a></p>
+						</fieldset>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div> <!-- /container -->
+</body>
 </html>

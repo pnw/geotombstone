@@ -32,7 +32,11 @@ function doSearchResponse(response){
 	var results = response.results;
 	var loggedIn = response.logged_in;
 	r = results; // debug
-	if (results.length != 0){
+	
+	if (results.length == 0){
+		$("#noresults").show()
+	} else{
+		$("#noresults").hide()
 		var bounds = new google.maps.LatLngBounds();
 		for (var i=0;i<results.length;i++){
 			obit = results[i]
@@ -42,7 +46,7 @@ function doSearchResponse(response){
 			var lon = geoPoint.lon;
 			var location = new google.maps.LatLng(lat,lon);
 			// add the marker to the map
-			marker = placeMarker(location);
+			marker = placeMarker(location);  
 			// add the location to the bounds calculator
 			bounds.extend(location);
 			// attach the overlay to the marker
@@ -53,9 +57,7 @@ function doSearchResponse(response){
 		}
 		map.fitBounds(bounds);
 	}
-	else{ // results.length == 0
-		alert('Empty results!')
-	}
+
 }
 function doSearch(lat,lon){
 	base_url = '/search'
