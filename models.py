@@ -74,10 +74,16 @@ class Obituary(BaseModel):
 			self.dod_searchable = self.searchatize_date(self.dod)
 	@property
 	def dob_web(self):
-		return '{}/{}/{}'.format(self.dob.month,self.dob.day,self.dob.year)
+		if self.dob:
+			return '{}/{}/{}'.format(self.dob.month,self.dob.day,self.dob.year)
+		else:
+			return ''
 	@property
 	def dod_web(self):
-		return '{}/{}/{}'.format(self.dod.month,self.dod.day,self.dod.year)
+		if self.dod:
+			return '{}/{}/{}'.format(self.dod.month,self.dod.day,self.dod.year)
+		else:
+			return ''
 	@staticmethod
 	def fetch_author_multi(obits):
 		'''
@@ -131,8 +137,8 @@ class Obituary(BaseModel):
 					'oid' : self.key.id(),
 					'geo_point' : self.geo_point,
 					'name' : self.name or '',
-					'dob' : str(self.dob or '') if web is False else str(self.dob_web() or ''),
-					'dod' : str(self.dod or '') if web is False else str(self.dod_web() or ''),
+					'dob' : str(self.dob or '') if web is False else self.dob_web(),
+					'dod' : str(self.dod or '') if web is False else self.dod_web(),
 					'pob' : self.pob or '',
 					'pod' : self.pod or '',
 					'tombstone_message' : self.tombstone_message or '',
