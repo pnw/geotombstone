@@ -88,7 +88,7 @@ class UploadObituaryHandler(handlers.UploadHandler):
 			
 			# make sure at least one field is entered
 			assert dob or dod or pob or pod \
-				or name or tombstone_message, \
+				or name or tombstone_message or img_keys, \
 				'Must provide at least one identifying piece of information'
 			
 			ob = self.create_obituary(
