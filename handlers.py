@@ -48,8 +48,8 @@ class BaseHandler(webapp2.RequestHandler):
 		'''
 		if predicate is None:
 			predicate = str
-		logging.info('key: {}'.format(key))
 		val = self.request.get(key)
+		logging.info('{}: {}'.format(key,val))
 		if required is True and not val:
 			e = '{}: required'.format(key)
 			raise self.InputError(e)

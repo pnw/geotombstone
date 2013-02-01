@@ -65,6 +65,8 @@ class UploadObituaryHandler(handlers.UploadHandler):
 		'''
 		# get the blobstore key of the image if an image is uploaded
 		try:
+			logging.info(self.request)
+			logging.info(self.request.headers)
 			logging.info(self.request.params)
 			# tombstone location
 			lat = self.rget('lat',float,True)
@@ -84,6 +86,8 @@ class UploadObituaryHandler(handlers.UploadHandler):
 			uploader_id = self.rget('uploader_id',int,True)
 			
 			# image
+			logging.info(self.get_uploads())
+			logging.info(self.get_uploads('image'))
 			img_keys = [p.key() for p in self.get_uploads()]
 			
 			# make sure at least one field is entered
