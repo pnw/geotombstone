@@ -127,3 +127,19 @@ function doSearch(lat,lon){
 	})
 	
 }
+
+function showAll(){
+	$("#deceased_name,#dob,#dod,#pob,#pod").val("");
+	$("#searchForm").submit()
+}
+
+$(document).on("ready",function() { 
+	
+	showAll()
+	
+	$("#showall").click(function(e){
+		e.preventDefault()
+		showAll()
+	})
+	
+})

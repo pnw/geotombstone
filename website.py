@@ -39,11 +39,15 @@ class LandingHandler(handlers.WebHandler):
 		lat = float(lat)
 		lon = float(lon)
 		
+		desktop = self.request.get("desktop",False)
+		logging.info(desktop)
+		
 		template_values = {
 						'logged_in' : logged_in,
 						'admin' : google_users.is_current_user_admin(),
 						'lat' : lat,
-						'lon' : lon
+						'lon' : lon,
+						'desktop' :	desktop
 						}
 		
 		template = jinja_environment.get_template('templates/landing.html')
