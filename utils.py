@@ -73,10 +73,6 @@ def search(self,search_tokens = None,dob=None,dod=None,ghashes=None,ghash_precis
 	if search_tokens:
 		assert isinstance(search_tokens,list)
 		# combine all the tokens into one list for later when we count match freq.
-		total_tokens = []
-		for val in search_tokens.items():
-			total_tokens.extend(val)
-		
 		qry = qry.filter(models.Obituary.tags.IN(search_tokens))
 	if dob:
 		qry = qry.filter(
