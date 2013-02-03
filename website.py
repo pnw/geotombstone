@@ -124,7 +124,9 @@ class ObituaryPageHandler(handlers.WebHandler):
 		base_url = '/obituary/{}'.format(obit.key.id())
 		upload_photo_url = blobstore.create_upload_url('{}/add_photo'.format(base_url))
 		
-		
+		# convert related obits to lists for template
+		for key,val in related_obits.iteritems():
+			related_obits[key] = list(val)
 		
 		template_values = {
 						# data variables
@@ -143,7 +145,7 @@ class ObituaryPageHandler(handlers.WebHandler):
 						'relatives' : related_obits,
 						'related_count' : related_count
 						}
-		
+#		assert False, template_values['relatives']['mothers_name']
 #		self.response.out.write(template_values)
 #		self.response.out.write(obit.get_photo_urls())
 		template = jinja_environment.get_template('templates/obituary_page.html')
