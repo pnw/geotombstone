@@ -205,6 +205,9 @@ class Obituary(BaseModel):
 		return Photo.query(ancestor = self.key).iter()
 	def get_photo_urls(self):
 		return [i.img_url for i in self.photos]
+	@property
+	def obituary_url(self):
+		return '{}/obituary/{}'.format(utils.BASE_URL,self.key.id())
 	def package(self,uploader = None,messages = None, narratives = None,web=False):
 		'''
 		Packages an obituary into a dict for the phone
@@ -220,7 +223,7 @@ class Obituary(BaseModel):
 					'pod' : self.pod or '',
 					'tombstone_message' : self.tombstone_message or '',
 					'photo_urls' : self.get_photo_urls(),
-					'obituary_url' : '{}/obituary/{}'.format(utils.BASE_URL,self.key.id()),
+					'obituary_url' : self.obituary_url,
 					'uploader' : uploader if uploader is not None else {},
 					'messages' : messages if messages is not None else [],
 					'narratives' : narratives if narratives is not None else [],
