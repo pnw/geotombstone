@@ -139,7 +139,7 @@
                     <label>Name:</label><input type="text" name="name" value="{{ obituary.name }}" placeholder="Name"><br />
                     <label>Date Born:</label><input type="text" name="dob" value="{{ obituary.dob_web }}" placeholder="MM/DD/YYYY"><br />
                     <label>Date Deceased:</label><input type="text" name="dod" value="{{ obituary.dod_web }}" placeholder="MM/DD/YYYY"><br />
-                    <label>Place Born:</label><input type="text" name="pob" value="{{ obituary.pob }}" placeholder="Boston, MA"><br />
+                    <label>Place Born:</label><input type="text" name="pob" value="{{ obituary.pob | default('')}}" placeholder="Boston, MA"><br />
                     <label>Place Deceased:</label><input type="text" name="pod" value="{{ obituary.pod }}" placeholder="San Diego, CA"><br />
                     <label>Epitaph:</label><input type="text" name="tombstone_message" value="{{ obituary.tombstone_message }}" />
                     <label>Mother's Name:</label><input type="text" name="mothers_name" value="{{ obituary.mothers_name }}" />
@@ -291,6 +291,12 @@
 					$("#add-message").attr("disabled","disabled")
 				}
 				
+			})
+			
+			$("input").each(function(idx){
+				if ($(this).val() == 'None'){
+					$(this).val("")
+				}
 			})
 			
 			
