@@ -46,17 +46,37 @@ class Obituary(BaseModel):
 	'''
 	A record of someones tombstone
 	'''
-	ghash = ndb.StringProperty(required = True)
+	
 	name = ndb.StringProperty()
+	name_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.name),repeated = True)
+	
 	dob = ndb.DateProperty() # date of birth
+	dob_searchable = ndb.StructuredProperty(SearchableDate)
+	
 	dod = ndb.DateProperty() # date of death
+	dod_searchable = ndb.StructuredProperty(SearchableDate)
+	
 	pob = ndb.StringProperty() # place of birth
+	pob_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.pob),repeated = True)
+	
 	pod = ndb.StringProperty() # place of death
+	pod_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.pod),repeated = True)
+	
+	ghash = ndb.StringProperty(required = True)
+	ghash_list = ndb.ComputedProperty(lambda self: utils.listify_ghash(self.ghash),repeated = True)
+	
+	mothers_name = ndb.StringProperty()
+	mothers_name_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.mothers_name),repeated = True)
+	
+	fathers_name = ndb.StringProperty()
+	fathers_name_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.fathers_name),repeated = True)
+	
+	cod = ndb.StringProperty() # cause of death
+	cod_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.cod),repeated = True)
+	
 	uploader_key = ndb.KeyProperty(AppUser)
 	tombstone_message = ndb.TextProperty()
 	
-	dob_searchable = ndb.StructuredProperty(SearchableDate)
-	dod_searchable = ndb.StructuredProperty(SearchableDate)
 	tags = ndb.ComputedProperty(
 							lambda self: utils.tokenize_multi(
 															self.name,
@@ -65,8 +85,66 @@ class Obituary(BaseModel):
 															),
 							repeated=True)
 	
-	ghash_list = ndb.ComputedProperty(lambda self: utils.listify_ghash(self.ghash),
-									repeated = True)
+	def fetch_related(self):
+		'''
+		Fetches obituaries that are related to this one for each field
+		'''
+		keys = {
+			'name' : [],
+			'pob' : [],
+			'pod' : [],
+			'mothers_name' : [],
+			'fathers_name' : [],
+			'cod' : [],
+			'dob' : [],
+			'dod' : [],
+			}
+		if self.name_tags:
+			keys['name'] = Obituary.query(Obituary.name_tags.IN(self.name_tags)).iter(keys_only=True)
+#			name_futures = ndb.get_multi_async(name_keys)
+#			by_name = (f.get_result() for f in name_futures)
+		if self.pob_tags:
+			keys['pob'] = Obituary.query(Obituary.pob_tags.IN(self.pob_tags)).iter(keys_only=True)
+#			pob_futures = ndb.get_multi_async(pob_keys)
+#			by_pob = (f.get_result() for f in pob_futures)
+		if self.pod_tags:
+			keys['pod'] = Obituary.query(Obituary.pod_tags.IN(self.pod_tags)).iter(keys_only=True)
+#			pod_futures = ndb.get_multi_async(pod_keys)
+#			by_pod = (f.get_result() for f in pod_futures)
+		if self.mothers_name_tags:
+			keys['mothers_name'] = Obituary.query(Obituary.mothers_name_tags.IN(self.mothers_name_tags)).iter(keys_only=True)
+#			mothers_name_futures = ndb.get_multi_async(mothers_name_keys)
+#			by_mothers_name = (f.get_result() for f in mothers_name_futures)
+		if self.fathers_name_tags:
+			keys['fathers_name'] = Obituary.query(Obituary.fathers_name_tags.IN(self.fathers_name_tags)).iter(keys_only=True)
+#			fathers_name_futures = ndb.get_multi_async(fathers_name_keys)
+#			by_fathers_name_futures = (f.get_result() for f in fathers_name_futures)
+		if self.cod_tags:
+			keys['cod'] = Obituary.query(Obituary.cod_tags.IN(self.cod_tags)).iter(keys_only=True)
+#			cod_futures = ndb.get_multi_async(cod_keys)
+#			by_cod = (f.get_result() for f in cod_futures)
+		if self.dob:
+			keys['dob'] = Obituary.query(Obituary.dob == self.dob).iter(keys_only=True)
+#			dob_futures = ndb.get_multi_async(dob_keys)
+#			by_dob = (f.get_result() for f in dob_futures)
+		if self.dod:
+			keys['dod'] = Obituary.query(Obituary.dod == self.dod).iter(keys_only=True)
+#			dod_futures = ndb.get_multi_async()
+		
+		# fetch the entity futures
+		related_count = 0
+		relative_futures = {}
+		for field,key_list in keys.iteritems():
+			related_count += list(key_list).__len__()
+			relative_futures[field] = ndb.get_multi_async(key_list)
+		
+		# fetch the entities
+		relatives = {}
+		for field,futures in relative_futures():
+			relatives[field] = (f.get_result() for f in futures)
+		
+		return related_count,relatives
+
 	def _pre_put_hook(self):
 		if self.dob:
 			self.dob_searchable = self.searchatize_date(self.dob)
@@ -176,6 +254,9 @@ class Obituary(BaseModel):
 						)
 		logging.info(d)
 		return d
+	
+		
+		
 class Message(BaseModel):
 	'''
 	A message to loved ones

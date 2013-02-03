@@ -96,6 +96,9 @@ class ObituaryPageHandler(handlers.WebHandler):
 		# grab the obituary
 		obit = self.get_by_id(models.Obituary,oid)
 		
+		# fetch related obituaries
+		related_count,related_obits = obit.fetch_related()
+		
 		# get messages and narratives
 		message_keys = models.Message.query(ancestor = obit.key).iter(keys_only=True)
 		message_futures = ndb.get_multi_async(message_keys)
@@ -107,6 +110,8 @@ class ObituaryPageHandler(handlers.WebHandler):
 		# base url for posting changes
 		base_url = '/obituary/{}'.format(obit.key.id())
 		upload_photo_url = blobstore.create_upload_url('{}/add_photo'.format(base_url))
+		
+		
 		
 		template_values = {
 						# data variables
@@ -121,7 +126,9 @@ class ObituaryPageHandler(handlers.WebHandler):
 						# state variables
 						'logged_in' : logged_in,
 						'admin' : admin,
-						'editable' : admin or logged_in # true if logged in or admin
+						'editable' : admin or logged_in, # true if logged in or admin
+						'relatives' : related_obits,
+						'related_count' : related_count
 						}
 		
 #		self.response.out.write(template_values)
@@ -141,33 +148,24 @@ class ObituaryPageHandler(handlers.WebHandler):
 			assert obit, 'Invalid oid'
 			
 			# dates
-			dob = self.rget('dob',self.parse_date)
-			if dob:
-				obit.dob = dob
-			dod = self.rget('dod',self.parse_date)
-			if dod:
-				obit.dod = dod
+			obit.dob = self.rget('dob',self.parse_date) or obit.dob
+			obit.dod = self.rget('dod',self.parse_date) or obit.dod
+			
 			# birth/death locations
-			pob = self.rget('pob',str)
-			if pob:
-				obit.pob = pob
-			pod = self.rget('pod',str)
-			if pod:
-				obit.pod = pod
+			obit.pob = self.rget('pob',str) or obit.pob
+			obit.pod = self.rget('pod') or obit.pod
 			
 			# other
-			name = self.rget('name',str,True)
-			if name:
-				obit.name = name
-			tombstone_message = self.rget('tombstone_message',str) or None
-			logging.info('\n\n')
-			logging.info(tombstone_message)
-			if tombstone_message:
-				obit.tombstone_message = tombstone_message
+			obit.name = self.rget('name') or obit.name
+			obit.tombstone_message = self.rget('tombstone_message') or obit.tombstone_message
+			obit.cod = self.rget('cod') or obit.cod
+			obit.mothers_name = self.rget('mothers_name') or obit.mothers_name
+			obit.fathers_name = self.rget('fathers_name') or obit.fathers_name
 			
 			logging.info(obit.to_dict())
 			# replace the modified obituary
 			ndb.transaction(lambda: obit.put())
+			
 		except Exception,e:
 			logging.info(e.message)
 		finally:

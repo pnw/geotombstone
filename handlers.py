@@ -1,14 +1,14 @@
-import webapp2
-from google.appengine.ext.webapp import blobstore_handlers
-import json
-import utils as u
-import models
-from google.appengine.ext import ndb
-import datetime
-import logging
 from gaesessions import get_current_session
-import uuid
+from google.appengine.ext import ndb
+from google.appengine.ext.webapp import blobstore_handlers
+import datetime
 import hashlib
+import json
+import logging
+import models
+import utils as u
+import uuid
+import webapp2
 
 class BaseHandler(webapp2.RequestHandler):
 	class SessionError(Exception):
@@ -112,9 +112,9 @@ class BaseHandler(webapp2.RequestHandler):
 		@return: a list of obituaries
 		@rtype: list
 		'''
-		name =  self.rget('name',str) or None
-		pob = self.rget('pob',str) or None
-		pod = self.rget('pod',str) or None
+		name =  self.rget('name') or None
+		pob = self.rget('pob') or None
+		pod = self.rget('pod') or None
 		
 		# join the string params together if they exist
 		search_tokens = u.tokenize_multi(name,pob,pod)
@@ -123,52 +123,10 @@ class BaseHandler(webapp2.RequestHandler):
 		dob = self.rget('dob',self.parse_date) or None
 		dod = self.rget('dod',self.parse_date) or None
 		
-		return self.search(search_tokens, dob, dod)
+		return u.search(search_tokens, dob, dod)
 		
 		
-	def search(self,search_tokens = None,dob=None,dod=None,ghashes=None,ghash_precision=4):
-		'''
-		Searches obituaries given the following parameters
-		@param search_tokens: a list of search tokens
-		@type search_tokens: list
-		@param dob: date of birth
-		@type dob: datetime.date
-		@param dod: date of death
-		@type dod: datetime.date
-		@return: a list of obituary entities
-		@rtype: list
-		'''
-		qry = models.Obituary.query()
-		if search_tokens:
-			assert isinstance(search_tokens,list)
-			qry = qry.filter(models.Obituary.tags.IN(search_tokens))
-		if dob:
-			qry = qry.filter(
-							models.Obituary.dob_searchable.year == dob.year,
-							models.Obituary.dob_searchable.month == dob.month
-							)
-		if dod:
-			qry = qry.filter(
-							models.Obituary.dod_searchable.year == dod.year,
-							models.Obituary.dod_searchable.month == dod.month
-							)
-		if ghashes:
-			# pare down ghashes into the desired size
-			ghashes = [gh[:ghash_precision] for gh in ghashes]
-			# filter on ghashes
-			qry = qry.filter(
-							models.Obituary.ghash_list.IN(ghashes)
-							)
-		obit_keys = qry.iter(keys_only = True)
-		obit_futures = ndb.get_multi_async(obit_keys)
-		obits = (o.get_result() for o in obit_futures)
-		
-		# sort the obituaries by the number of matched tags
-		if search_tokens:
-			obits = sorted(obits,
-						key = lambda o: o.count_tag_matches(search_tokens),
-						reverse = True)
-		return obits
+	
 	def create_entity(self,model,parent_key=None,**params):
 		'''
 		Creates an entity using transaction
