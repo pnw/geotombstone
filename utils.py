@@ -23,6 +23,7 @@ def tokenize(text):
 	'''
 	Tokenizes and stems a string
 	'''
+	logging.info('tokenizing: '+str(text))
 	if text is None:
 		return None
 	text = text.encode('ascii','replace')
@@ -56,7 +57,7 @@ def listify_ghash(ghash):
 	'''
 	return [ghash[:idx] for idx in range(1,len(ghash)+1)]
 	
-def search(self,search_tokens = None,dob=None,dod=None,ghashes=None,ghash_precision=4):
+def search(search_tokens=None,dob=None,dod=None,ghashes=None,ghash_precision=4):
 	'''
 	Searches obituaries given the following parameters
 	@param search_tokens: a list of search tokens
@@ -68,7 +69,10 @@ def search(self,search_tokens = None,dob=None,dod=None,ghashes=None,ghash_precis
 	@return: a list of obituary entities
 	@rtype: list
 	'''
-	
+	logging.info('in search: ')
+	logging.info(search_tokens)
+	logging.info('dob: '+str(dob))
+	logging.info('dod: '+str(dod))
 	qry = models.Obituary.query()
 	if search_tokens:
 		assert isinstance(search_tokens,list)

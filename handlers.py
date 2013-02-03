@@ -6,7 +6,7 @@ import hashlib
 import json
 import logging
 import models
-import utils as u
+import utils
 import uuid
 import webapp2
 
@@ -67,7 +67,7 @@ class BaseHandler(webapp2.RequestHandler):
 		@param status_message: Message to describe what went wrong
 		@type status_message: str
 		'''
-		u.log_error()
+		utils.log_error()
 		# 500 == sever error
 		return self.send_response(500, status_message)
 	def send_success(self,response):
@@ -112,18 +112,20 @@ class BaseHandler(webapp2.RequestHandler):
 		@return: a list of obituaries
 		@rtype: list
 		'''
-		name =  self.rget('name') or None
-		pob = self.rget('pob') or None
-		pod = self.rget('pod') or None
+		name =  self.rget('name',str) or None
+		pob = self.rget('pob',str) or None
+		pod = self.rget('pod',str) or None
 		
 		# join the string params together if they exist
-		search_tokens = u.tokenize_multi(name,pob,pod)
+		search_tokens = utils.tokenize_multi(name,pob,pod)
 		logging.info(search_tokens)
-		
 		dob = self.rget('dob',self.parse_date) or None
 		dod = self.rget('dod',self.parse_date) or None
 		
-		return u.search(search_tokens, dob, dod)
+		logging.info('Sending to search: ')
+		logging.info(search_tokens)
+		
+		return utils.search(search_tokens, dob, dod)
 		
 		
 	
