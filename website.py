@@ -39,7 +39,20 @@ class LandingHandler(handlers.WebHandler):
 		lat = float(lat)
 		lon = float(lon)
 		
-		desktop = self.request.get("desktop",False)
+		uastring = str(self.request.headers['user-agent'])
+	
+		logging.info(uastring)
+			
+		if 'mobile' in uastring.lower():
+			desktop = False
+		else:
+			desktop = True
+		
+		desktop_param = self.request.get("desktop","notfound")
+		
+		if desktop_param != "notfound":
+			desktop = desktop_param
+			
 		logging.info(desktop)
 		
 		template_values = {
