@@ -53,6 +53,10 @@
 				margin-left: 20px;
 			}
 			
+			.bump-two{
+				margin-left: 40px;
+			}
+			
 			.name{
 				font-weight: 400;
 				font-size: 12pt;
@@ -113,13 +117,13 @@
                 <div id="obit-data" class="span8">
                 	<div class="topdata">
                     <h4 class="lead bigname">{{obituary.name}}</h4>
-                    <p class="lead smaller" style="margin-top: 20px;">Born {{ obituary.dob_web }}{% if obituary.pob %} in {{ obituary.pob }}{% endif %}</p>
-                    <p class="lead smaller" style="margin-top: 10px;">Passed away {{ obituary.dod_web }}{% if obituary.pod %} in {{ obituary.pod }}{% endif %}</p>
+                    <p class="lead smaller" style="margin-top: 20px;">{% if obituary.pob or obituary.dob %}Born {{ obituary.dob_web }}{% if obituary.pob %} in {{ obituary.pob }}{% endif %}{% endif %}</p>
+                    <p class="lead smaller" style="margin-top: 10px;">{% if obituary.pod or obituary.dod %}Passed away {{ obituary.dod_web }}{% if obituary.pod %} in {{ obituary.pod }}{% endif %}{% endif %}</p>
                     {% if obituary.tombstone_message %}
                     <p class="lead"  style="margin-top: 20px;">"{{ obituary.tombstone_message }}"</p>
                     {% endif %}
                     {% if editable %}
-                    <button id="editbtn" class="btn btn-info">Edit Information</button>
+                    <button id="editbtn" class="btn btn-info" style="margin-top: 10px;">Edit Information</button>
                     {% endif %}
                 	</div>
                     {% if editable %}
@@ -131,6 +135,9 @@
                     <label>Place Born:</label><input type="text" name="pob" value="{{ obituary.pob }}" placeholder="Boston, MA"><br />
                     <label>Place Deceased:</label><input type="text" name="pod" value="{{ obituary.pod }}" placeholder="San Diego, CA"><br />
                     <label>Epitaph:</label><input type="text" name="tombstone_message" value="{{ obituary.tombstone_message }}" />
+                    <label>Mother's Name:</label><input type="text" name="mothers_name" value="{{ obituary.mothers_name }}" />
+                    <label>Father's Name:</label><input type="text" name="fathers_name" value="{{ obituary.fathers_name }}" />
+                    <label>Cause of Death:</label><input type="text" name="cod" value="{{ obituary.cod }}" />
                     <input type="submit" class="btn btn-success btnsaveedit" name="submit" value="Save Changes">
                     </form>
                     </div>
@@ -172,6 +179,78 @@
                             <br />
                             <button class="btn btn-info btn-large" id="add-message" disabled>Leave a message</button>
                         </form>
+                    {% endif %}
+                    
+                    <h3 class="headerleader lead">Related Burials</h3>
+                    {% if related_count == 0 %}
+                    <div class="alert alert-info"><p class="lead smaller">No related burials exist.</p></div>
+                    {% else %}
+                    
+                    	{%if relatives.name%}
+                    	<p class="lead bump-right">Similar names:</p>
+                    	{%endif%}
+                    	
+                    	{%for r in relatives.name%}
+	                    	<a href="{{obituary_url}}" class="bump-two">{{r.name}}</a>
+                    	{%endfor%}
+                    	
+                    	{%if relatives.dob%}
+                    	<p class="lead bump-right">Born on the same day:</p>
+                    	{%endif%}
+                    	
+                    	{%for r in relatives.dob%}
+	                    	<a href="{{obituary_url}}" class="bump-two">{{r.name}}</a>
+                    	{%endfor%}
+                    	
+                    	{%if relatives.dod%}
+                    	<p class="lead bump-right">Died on the same day:</p>
+                    	{%endif%}
+                    	
+                    	{%for r in relatives.dod%}
+	                    	<a href="{{obituary_url}}" class="bump-two">{{r.name}}</a>
+                    	{%endfor%}
+                    	
+                    	{%if relatives.pob%}
+                    	<p class="lead bump-right">Born in the same place:</p>
+                    	{%endif%}
+                    	
+                    	{%for r in relatives.pob%}
+	                    	<a href="{{obituary_url}}" class="bump-two">{{r.name}}</a>
+                    	{%endfor%}
+                    	
+                    	{%if relatives.pod%}
+                    	<p class="lead bump-right">Died in the same place:</p>
+                    	{%endif%}
+                    	
+                    	{%for r in relatives.pod%}
+	                    	<a href="{{obituary_url}}" class="bump-two">{{r.name}}</a>
+                    	{%endfor%}
+                    	
+                    	{%if relatives.mothers_name%}
+                    	<p class="lead bump-right">Same mother's name:</p>
+                    	{%endif%}
+                    	
+                    	{%for r in relatives.mothers_name%}
+	                    	<a href="{{obituary_url}}" class="bump-two">{{r.name}}</a>
+                    	{%endfor%}
+                    	
+                    	{%if relatives.fathers_name%}
+                    	<p class="lead bump-right">Same father's name:</p>
+                    	{%endif%}
+                    	
+                    	{%for r in relatives.fathers_name%}
+	                    	<a href="{{obituary_url}}" class="bump-two">{{r.name}}</a>
+                    	{%endfor%}
+                    	
+                    	{%if relatives.cod%}
+                    	<p class="lead bump-right">Burials with the same cause of death:</p>
+                    	{%endif%}
+                    	
+                    	{%for r in relatives.cod%}
+	                    	<a href="{{obituary_url}}" class="bump-two">{{r.name}}</a>
+                    	{%endfor%}
+                    	
+                    	
                     {% endif %}
                 </div>
             </div>
