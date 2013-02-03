@@ -186,7 +186,7 @@
                     <div class="alert alert-info"><p class="lead smaller">No related burials exist.</p></div>
                     {% else %}
                     
-                    	{%if relatives.name%}
+                    	{%if relatives.name !=[]%}
                     	<p class="lead bump-right">Similar names:</p>
                     	{%endif%}
                     	
@@ -194,7 +194,7 @@
 	                    	<a href="{{obituary_url}}" class="bump-two">{{r.name}}</a>
                     	{%endfor%}
                     	
-                    	{%if relatives.dob%}
+                    	{%if relatives.dob != []%}
                     	<p class="lead bump-right">Born on the same day:</p>
                     	{%endif%}
                     	
@@ -202,7 +202,7 @@
 	                    	<a href="{{obituary_url}}" class="bump-two">{{r.name}}</a>
                     	{%endfor%}
                     	
-                    	{%if relatives.dod%}
+                    	{%if relatives.dod !=[]%}
                     	<p class="lead bump-right">Died on the same day:</p>
                     	{%endif%}
                     	
@@ -210,7 +210,7 @@
 	                    	<a href="{{obituary_url}}" class="bump-two">{{r.name}}</a>
                     	{%endfor%}
                     	
-                    	{%if relatives.pob%}
+                    	{%if relatives.pob !=[]%}
                     	<p class="lead bump-right">Born in the same place:</p>
                     	{%endif%}
                     	
@@ -218,7 +218,7 @@
 	                    	<a href="{{obituary_url}}" class="bump-two">{{r.name}}</a>
                     	{%endfor%}
                     	
-                    	{%if relatives.pod%}
+                    	{%if relatives.pod !=[]%}
                     	<p class="lead bump-right">Died in the same place:</p>
                     	{%endif%}
                     	
@@ -226,7 +226,7 @@
 	                    	<a href="{{obituary_url}}" class="bump-two">{{r.name}}</a>
                     	{%endfor%}
                     	
-                    	{%if relatives.mothers_name%}
+                    	{%if relatives.mothers_name !=[]%}
                     	<p class="lead bump-right">Same mother's name:</p>
                     	{%endif%}
                     	
@@ -234,7 +234,7 @@
 	                    	<a href="{{obituary_url}}" class="bump-two">{{r.name}}</a>
                     	{%endfor%}
                     	
-                    	{%if relatives.fathers_name%}
+                    	{%if relatives.fathers_name !=[]%}
                     	<p class="lead bump-right">Same father's name:</p>
                     	{%endif%}
                     	
@@ -242,7 +242,7 @@
 	                    	<a href="{{obituary_url}}" class="bump-two">{{r.name}}</a>
                     	{%endfor%}
                     	
-                    	{%if relatives.cod%}
+                    	{%if relatives.cod !=[]%}
                     	<p class="lead bump-right">Burials with the same cause of death:</p>
                     	{%endif%}
                     	
