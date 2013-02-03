@@ -130,19 +130,18 @@ class Obituary(BaseModel):
 		if self.dod:
 			keys['dod'] = Obituary.query(Obituary.dod == self.dod).iter(keys_only=True)
 #			dod_futures = ndb.get_multi_async()
-		
 		# fetch the entity futures
 		related_count = 0
 		relative_futures = {}
 		for field,key_list in keys.iteritems():
-			related_count += list(key_list).__len__()
+			key_list = filter(lambda k: k != self.key,key_list)
+			related_count += key_list.__len__()
 			relative_futures[field] = ndb.get_multi_async(key_list)
 		
 		# fetch the entities
 		relatives = {}
-		for field,futures in relative_futures():
+		for field,futures in relative_futures.iteritems():
 			relatives[field] = (f.get_result() for f in futures)
-		
 		return related_count,relatives
 
 	def _pre_put_hook(self):

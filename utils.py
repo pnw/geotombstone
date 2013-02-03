@@ -23,6 +23,8 @@ def tokenize(text):
 	'''
 	Tokenizes and stems a string
 	'''
+	if text is None:
+		return None
 	text = text.encode('ascii','replace')
 	# chars to be converted to space
 	exclude = ['_','/',',','-','|',' ']
