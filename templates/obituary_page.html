@@ -153,7 +153,7 @@
                     <h3 class="headleader lead">Narratives about this person</h3>
                     {% for n in narratives %}
                     	<div class="bump-right">
-                        <h5 class="name">{{n.author_name}}</h5>
+                        <h5 class="name">From {{n.author_name}}:</h5>
                         <p class="msg bump-right">{{n.message}}</p>
                         <hr>
                         </div>
@@ -173,7 +173,7 @@
                     <h3 class="headleader lead">Messages to loved ones</h3>
                     {% for m in messages %}
                     	<div class="bump-right">
-                        <h5 class="name">{{m.author_name}}</h5>
+                        <h5 class="name">From {{m.author_name}}:</h5>
                         <p class="msg bump-right">{{m.message}}</p>
                     	<hr>
                     	</div>
