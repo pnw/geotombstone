@@ -11,7 +11,7 @@ import traceback
 if os.environ['SERVER_SOFTWARE'].startswith('Development') == True:
 	BASE_URL = 'http://0.0.0.0:8088'
 else:
-	BASE_URL = 'http://geotombstone.appspot.com'
+	BASE_URL = 'http://geotombstone.com'
 
 def log_error(message=''):
 	_,_,exc_trace = sys.exc_info()
