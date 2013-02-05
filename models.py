@@ -176,10 +176,10 @@ class Obituary(BaseModel):
 		return uploaders
 	@property
 	def message_keys(self):
-		return Message.query().iter(keys_only=True)
+		return Message.query(ancestor = self.key).iter(keys_only=True)
 	@property
 	def narrative_keys(self):
-		return Narrative.query().iter(keys_only=True)
+		return Narrative.query(ancestor = self.key).iter(keys_only=True)
 	@staticmethod
 	def fetch_messages_multi(obits):
 		return _fetch_attached_multi_prop_multi(obits, 'message_keys')
