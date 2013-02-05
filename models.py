@@ -24,8 +24,18 @@ class WebUser(BaseModel):
 	'''
 	email = ndb.StringProperty(required = True)
 	pw = ndb.StructuredProperty(PasswordProperty,required = True,indexed = False)
+	@ndb.transactional
+	def add_bookmark(self,obit_id):
+		Bookmark.get_or_insert(obit_id,parent=self.key)
+	@ndb.transactional
+	def remove_bookmark(self,obit_id):
+		ndb.Key(Bookmark,obit_id,parent=self.key).delete()
+		
+		
+class Bookmark(ndb.Model):
+	'''User bookmarks an obituary'''
 class SearchableDate(ndb.Model):
-	'''
+	'''Date in a format that can searched without inequalities
 	'''
 	year = ndb.IntegerProperty()
 	month = ndb.IntegerProperty()
@@ -101,35 +111,20 @@ class Obituary(BaseModel):
 			}
 		if self.name_tags:
 			keys['name'] = Obituary.query(Obituary.name_tags.IN(self.name_tags)).iter(keys_only=True)
-#			name_futures = ndb.get_multi_async(name_keys)
-#			by_name = (f.get_result() for f in name_futures)
 		if self.pob_tags:
 			keys['pob'] = Obituary.query(Obituary.pob_tags.IN(self.pob_tags)).iter(keys_only=True)
-#			pob_futures = ndb.get_multi_async(pob_keys)
-#			by_pob = (f.get_result() for f in pob_futures)
 		if self.pod_tags:
 			keys['pod'] = Obituary.query(Obituary.pod_tags.IN(self.pod_tags)).iter(keys_only=True)
-#			pod_futures = ndb.get_multi_async(pod_keys)
-#			by_pod = (f.get_result() for f in pod_futures)
 		if self.mothers_name_tags:
 			keys['mothers_name'] = Obituary.query(Obituary.mothers_name_tags.IN(self.mothers_name_tags)).iter(keys_only=True)
-#			mothers_name_futures = ndb.get_multi_async(mothers_name_keys)
-#			by_mothers_name = (f.get_result() for f in mothers_name_futures)
 		if self.fathers_name_tags:
 			keys['fathers_name'] = Obituary.query(Obituary.fathers_name_tags.IN(self.fathers_name_tags)).iter(keys_only=True)
-#			fathers_name_futures = ndb.get_multi_async(fathers_name_keys)
-#			by_fathers_name_futures = (f.get_result() for f in fathers_name_futures)
 		if self.cod_tags:
 			keys['cod'] = Obituary.query(Obituary.cod_tags.IN(self.cod_tags)).iter(keys_only=True)
-#			cod_futures = ndb.get_multi_async(cod_keys)
-#			by_cod = (f.get_result() for f in cod_futures)
 		if self.dob:
 			keys['dob'] = Obituary.query(Obituary.dob == self.dob).iter(keys_only=True)
-#			dob_futures = ndb.get_multi_async(dob_keys)
-#			by_dob = (f.get_result() for f in dob_futures)
 		if self.dod:
 			keys['dod'] = Obituary.query(Obituary.dod == self.dod).iter(keys_only=True)
-#			dod_futures = ndb.get_multi_async()
 		# fetch the entity futures
 		related_count = 0
 		relative_futures = {}
