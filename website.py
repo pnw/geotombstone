@@ -10,7 +10,6 @@ from google.appengine.ext import blobstore
 from google.appengine.ext.webapp import blobstore_handlers
 from gaesessions import get_current_session
 from google.appengine.api import users as google_users
-import json
 jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 class LandingHandler(handlers.WebHandler):
 	def get(self):
@@ -60,7 +59,7 @@ class LandingHandler(handlers.WebHandler):
 						'admin' : google_users.is_current_user_admin(),
 						'lat' : lat,
 						'lon' : lon,
-						'desktop' :	desktop
+						'desktop' : desktop
 						}
 		
 		template = jinja_environment.get_template('templates/landing.html')
@@ -127,10 +126,13 @@ class ObituaryPageHandler(handlers.WebHandler):
 		# convert related obits to lists for template
 		for key,val in related_obits.iteritems():
 			related_obits[key] = list(val)
+		# check if the oituary has been bookmarked by the current user
+		bookmarked = obit.is_bookmarked(user.key) if user else False
 		
 		template_values = {
 						# data variables
 						'obituary' : obit,
+						'bookmarked' : bookmarked,
 						'messages' : messages,
 						'narratives' : narratives,
 						# update entity variables
@@ -373,12 +375,70 @@ class CreateAccountHandler(handlers.WebHandler):
 				return self.redirect(session['last_page'])
 			except KeyError:
 				return self.redirect('/')
+class BookmarkHandler(handlers.WebHandler):
+	def get(self,oid):
+#		try:
+		oid = int(oid)
+		user = self.get_user_from_session()
+		
+		if not user:
+			# redirect to login page and send them back here on login
+			session = get_current_session()
+			session['last_page'] = self.request.url
+			return self.redirect('/log_in')
+		else:
+			logging.info('user is logged in, creating bookmark {}'.format(oid))
+			# user is logged in - add bookmark
+			user.add_bookmark(oid)
+#		except Exception,e:
+#			logging.error(e)
+		
+		return self.redirect('/obituary/{}'.format(oid))
+
+class RemoveBookmarkHandler(handlers.WebHandler):
+	def get(self,oid):
+		try:
+			oid = int(oid)
+			user = self.get_user_from_session()
+			user.remove_bookmark(oid)
+		except Exception,e:
+			logging.error(e)
+		finally:
+			return self.redirect(self.request.referrer)
+class ViewBookmarksHandler(handlers.WebHandler):
+	def get(self):
+		'''A user is viewing all of their bookmarked obituaries
+		'''
+		user = self.get_user_from_session()
+		logged_in = True if user else False
+		if logged_in:
+			# get all bookmarks 
+			bm_keys = models.Bookmark.query(ancestor = user.key).iter(keys_only=True)
+			
+			obit_keys = (ndb.Key(models.Obituary,key.id()) for key in bm_keys)
+			obits = ndb.get_multi(obit_keys)
+		else:
+			# set last page for when they log in
+			session = get_current_session()
+			session['last_page'] = self.request.url
+			# no obituaries
+			obits = []
+		template_values = {
+						'logged_in' : logged_in,
+						'bookmarks' : obits,
+						'admin' : google_users.is_current_user_admin()
+						}
+		template = jinja_environment.get_template('templates/bookmarks.html')
+		return self.response.out.write(template.render(template_values))
 app = webapp2.WSGIApplication([
 							('/search',SearchHandler),
 							('/obituary/(.*)/add_narrative',AddNarrativeHandler),
 							('/obituary/(.*)/add_message',AddMessageHandler),
 							('/obituary/(.*)/add_photo',AddPhotoHandler),
+							('/obituary/(.*)/bookmark',BookmarkHandler),
+							('/obituary/(.*)/remove_bookmark',RemoveBookmarkHandler),
 							('/obituary/(.*)',ObituaryPageHandler),
+							('/bookmarks',ViewBookmarksHandler),
 							('/log_in',LoginHandler),
 							('/log_out',LogoutHandler),
 							('/create_account',CreateAccountHandler),

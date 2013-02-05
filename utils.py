@@ -56,6 +56,7 @@ def listify_ghash(ghash):
 	@rtype: list
 	'''
 	return [ghash[:idx] for idx in range(1,len(ghash)+1)]
+
 	
 def search(search_tokens=None,dob=None,dod=None,ghashes=None,ghash_precision=4):
 	'''

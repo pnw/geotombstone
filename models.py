@@ -26,7 +26,10 @@ class WebUser(BaseModel):
 	pw = ndb.StructuredProperty(PasswordProperty,required = True,indexed = False)
 	@ndb.transactional
 	def add_bookmark(self,obit_id):
-		Bookmark.get_or_insert(obit_id,parent=self.key)
+		bm = Bookmark.get_by_id(obit_id, parent=self.key)
+		if not bm:
+			# bookmark doesnt already exist, so create it
+			Bookmark(id=obit_id,parent=self.key).put()
 	@ndb.transactional
 	def remove_bookmark(self,obit_id):
 		ndb.Key(Bookmark,obit_id,parent=self.key).delete()
@@ -94,7 +97,17 @@ class Obituary(BaseModel):
 															self.pod
 															),
 							repeated=True)
-	
+	def is_bookmarked(self,user_key):
+		'''
+		Checks if the obit is bookmarked by the current user
+		@param user_key: the 
+		@type user_key:
+		@return: whether or not the current obit is bookmarked by current user
+		@rtype: bool
+		'''
+		bookmark = Bookmark.get_by_id(self.key.id(), parent=user_key)
+		return True if bookmark else False
+		
 	def fetch_related(self):
 		'''
 		Fetches obituaries that are related to this one for each field
@@ -203,6 +216,12 @@ class Obituary(BaseModel):
 	@property
 	def obituary_url(self):
 		return '{}/obituary/{}'.format(utils.BASE_URL,self.key.id())
+	@property
+	def bookmark_url(self):
+		return '{}/obituary/{}/bookmark'.format(utils.BASE_URL,self.key.id())
+	@property
+	def remove_bookmark_url(self):
+		return '{}/obituary/{}/remove_bookmark'.format(utils.BASE_URL,self.key.id())
 	def package(self,uploader = None,messages = None, narratives = None,web=False):
 		'''
 		Packages an obituary into a dict for the phone

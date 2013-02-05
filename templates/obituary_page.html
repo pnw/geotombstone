@@ -97,6 +97,7 @@
               {% if admin == True %}
               <li><a href="/admin/users">Admin</a></li>
               {% endif %}
+              <li><a href="/bookmarks">Bookmarks</a></li>
               {% if logged_in == True%}
               <li><a href="/log_out">Log Out</a></li>
               {% else %}
@@ -143,6 +144,12 @@
                     <button id="editbtn" class="btn btn-info" style="margin-top: 10px;">Edit Information</button>
                     {% else %}
                     <div class="alert alert-success"><a href="/log_in">Login</a> or <a href="/create_account">create an account</a> to add or edit information.</div>
+                    {% endif %}
+                    
+                    {% if bookmarked %}
+                        <a href="{{ obituary.remove_bookmark_url}}" class="btn btn-success" style="margin-top:10px;">Remove Bookmark</a>
+                    {% else %}
+                        <a href="{{ obituary.bookmark_url }}" class="btn btn-success" style="margin-top:10px;">Bookmark</a>
                     {% endif %}
                 	</div>
                     {% if editable %}
