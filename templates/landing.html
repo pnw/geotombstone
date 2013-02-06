@@ -132,6 +132,11 @@
           var initLat = {{ lat }};
           // initial lon
           var initLon = {{ lon }};
+          {% if search.oid %}
+          var oid = {{ search.oid }};
+          {% else %}
+          var oid = '';
+          {% endif %}
           // initialize the map globally
           var map;
           function initialize() {
@@ -169,6 +174,12 @@
             };
             map = new google.maps.Map(document.getElementById("map_canvas"),
                 mapOptions);
+            // perform initial search
+            {% if search.oid %}
+            
+            {% else %}
+                
+            {% endif %}
           }
         </script>
         <script type="text/javascript" src="../js/jquery.min.js"></script>
@@ -212,24 +223,25 @@ dedications that associate physical locations with people we have lost.</p>
             	<div id="noresults" class="alert alert-danger" hidden>No results found.</div>
                 <div class="control-group">
                     <label class="control-label" for="deceased_name">Name</label>
-                    <input type="text" id="deceased_name" name="deceased_name" placeholder="Name"/>
+                    <input type="text" id="deceased_name" name="deceased_name" placeholder="Name" value="{{search.name}}"/>
                 </div>
                 <div class="control-group">
                     <label class="control-label" for="pob">Place of Birth</label>
-                    <input type="text" id="pob" name="pob" placeholder="City"/>
+                    <input type="text" id="pob" name="pob" placeholder="City" value="{{search.pob}}"/>
                 </div>
                 <div class="control-group">
                     <label class="control-label" for="pod">Place of Death</label>
-                    <input type="text" id="pod" name="pod" placeholder="City"/>
+                    <input type="text" id="pod" name="pod" placeholder="City" value="{{search.pod}}"/>
                 </div>
                 <div class="control-group">
                     <label class="control-label" for="dob">Date of Birth</label>
-                    <input type="text" id="dob" name="dob" placeholder="MM/DD/YYYY"/>
+                    <input type="text" id="dob" name="dob" placeholder="MM/DD/YYYY" value="{{search.dob}}"/>
                 </div>
                 <div class="control-group">
                     <label class="control-label" for="dod"> Date of Death</label>
-                    <input type="text" id="dod" name="dod" placeholder="MM/DD/YYYY"/>
+                    <input type="text" id="dod" name="dod" placeholder="MM/DD/YYYY" value="{{search.dod}}"/>
                 </div>
+                <input type="text" id="oid" class="hidden" name="oid" value="" />
                 <input type="submit" class="btn btn-success btn-search btn-block btn-large" value="Search"/>
                 <hr>
 				<input type="submit" id="showall" class="btn btn-primary btn-search btn-block btn-large" value="Show All"/>

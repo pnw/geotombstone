@@ -48,11 +48,14 @@ class BaseHandler(webapp2.RequestHandler):
 		'''
 		if predicate is None:
 			predicate = str
-		val = self.request.get(key)
+		val = self.request.get(key) or None
 		logging.info('{}: {}'.format(key,val))
-		if required is True and not val:
+		# raise InputError if required but missing
+		if required is True and val is None:
 			e = '{}: required'.format(key)
 			raise self.InputError(e)
+		elif val is None:
+			return val
 		else:
 			# typecast the input
 			try:
@@ -60,7 +63,9 @@ class BaseHandler(webapp2.RequestHandler):
 			except ValueError,e:
 				raise self.InputError('{}: {}'.format(key,e.message))
 			else:
-				return val or None
+				# default None if val is falsy
+				return val
+
 	def send_server_error(self,status_message='Server Error.'):
 		'''
 		Special response indicating a server error

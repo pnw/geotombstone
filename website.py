@@ -54,12 +54,22 @@ class LandingHandler(handlers.WebHandler):
 			
 		logging.info(desktop)
 		
+		# check for special cases for the initial search
+		initial_search = {
+						'name' : self.rget('name') or '',
+						'pob' : self.rget('pob') or '',
+						'pod' : self.rget('pod') or '',
+						'dob' : self.rget('dob') or '',
+						'dod' : self.rget('dod') or '',
+						'oid' : self.rget('oid') or ''
+						}
 		template_values = {
 						'logged_in' : logged_in,
 						'admin' : google_users.is_current_user_admin(),
 						'lat' : lat,
 						'lon' : lon,
-						'desktop' : desktop
+						'desktop' : desktop,
+						'search' : initial_search
 						}
 		
 		template = jinja_environment.get_template('templates/landing.html')
@@ -70,9 +80,19 @@ class SearchHandler(handlers.WebHandler):
 		Ajax call to search for obituaries
 		'''
 		try:
-			obits = self.full_search()
-			# only take top 50 matched obits
-			obits = list(obits)[:75]
+			oid = self.rget('oid',int)
+			logging.info('oid: {}'.format(oid))
+			if oid:
+				obit = models.Obituary.get_by_id(oid)
+				obits = [obit,]
+			else:
+				# store this search for the future
+				session = get_current_session()
+				session['last_search'] = self.request.query
+				# perform search
+				obits = self.full_search()
+				# only take top 50 matched obits
+				obits = list(obits)[:75]
 			
 			
 			user = self.get_user_from_session()
@@ -129,6 +149,11 @@ class ObituaryPageHandler(handlers.WebHandler):
 		# check if the oituary has been bookmarked by the current user
 		bookmarked = obit.is_bookmarked(user.key) if user else False
 		
+		# create urls for last search and view this obituary on landing
+		last_search_url = '/?'+session.get('last_search','') or ''
+		view_on_map_url = '/?oid={}'.format(obit.key.id())
+		
+		
 		template_values = {
 						# data variables
 						'obituary' : obit,
@@ -145,7 +170,9 @@ class ObituaryPageHandler(handlers.WebHandler):
 						'admin' : admin,
 						'editable' : admin or logged_in, # true if logged in or admin
 						'relatives' : related_obits,
-						'related_count' : related_count
+						'related_count' : related_count,
+						'last_search_url' : last_search_url,
+						'view_on_map_url' : view_on_map_url
 						}
 #		assert False, template_values['relatives']['mothers_name']
 #		self.response.out.write(template_values)

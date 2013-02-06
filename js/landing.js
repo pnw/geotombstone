@@ -99,6 +99,9 @@ function doSearch(lat,lon){
 	base_url += '&dob='+dob
 	base_url += '&dod='+dod
 	
+	// add the oid
+	base_url += '&oid='+$('#oid').val();
+	
 	url = base_url
 	console.log(base_url)
 	d = {}
@@ -129,13 +132,15 @@ function doSearch(lat,lon){
 }
 
 function showAll(){
-	$("#deceased_name,#dob,#dod,#pob,#pod").val("");
+	$("#deceased_name,#dob,#dod,#pob,#pod,#oid").val("");
 	$("#searchForm").submit()
 }
 
 $(document).on("ready",function() { 
-	
-	showAll()
+	// initial search
+	$("#oid").val(oid);
+	$("#searchForm").submit();
+	$("#oid").val("");
 	
 	$("#showall").click(function(e){
 		e.preventDefault()
