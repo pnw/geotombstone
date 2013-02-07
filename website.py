@@ -448,6 +448,7 @@ class ViewBookmarksHandler(handlers.WebHandler):
 			# set last page for when they log in
 			session = get_current_session()
 			session['last_page'] = self.request.url
+			return self.redirect('/log_in')
 			# no obituaries
 			obits = []
 		template_values = {
