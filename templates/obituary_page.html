@@ -147,12 +147,12 @@
                     {% endif %}
                     
                     {% if bookmarked %}
-                        <a href="{{ obituary.remove_bookmark_url}}" class="btn btn" style="margin-top:10px;">Remove Bookmark</a>
+                        <a href="{{ obituary.remove_bookmark_url}}" class="btn btn-danger" style="margin-top:10px;">Remove Bookmark</a>
                     {% else %}
-                        <a href="{{ obituary.bookmark_url }}" class="btn btn" style="margin-top:10px;">Bookmark</a>
+                        <a href="{{ obituary.bookmark_url }}" class="btn btn-primary" style="margin-top:10px;">Bookmark</a>
                     {% endif %}
                     <br/>
-                	<a href="{{view_on_map_url}}" class="btn btn-success" style="margin-top:10px;">View on map</a>
+<!--                 	<a href="{{view_on_map_url}}" class="btn btn-success" style="margin-top:10px;">View on map</a> -->
                 	</div>
                     {% if editable %}
                     <div class="editform collapse">

@@ -7,14 +7,65 @@
         Remove this if you use the .htaccess -->
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
-        <title>bookmarks</title>
+        <title>Bookmarks</title>
         <meta name="description" content="" />
         <meta name="author" content="Patrick Walsh" />
+        <link rel="icon" href="/img/favicon.png" type="image/png" />
 
         <meta name="viewport" content="width=device-width; initial-scale=1.0" />
 
         <!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
         <link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
+        <style>
+	        
+	        .huge{
+		        font-size: 30pt;
+		        font-weight: 400;
+	        }
+	        
+	        .obit-container{
+		        background-color:#f8f8f8;
+/* 		        height: 400px; */
+/* overflow: auto; */
+		        border-radius: 5px;
+		        box-shadow: 0px 0px 4px #a8a8a8;
+		        margin-bottom: 20px;
+	        }
+	        
+	        .obit-image{
+		        width: 150px;
+		        height: 150px;
+/* 		        height: auto; */
+/* 		        background-color: red; */
+		        margin-left: auto;
+		        margin-right: auto;
+		        margin-top: 10px;
+		        background-image: url("../img/nopicture.png");
+		        background-size: cover;
+	        }
+	        
+	        .obit-name{
+		        text-align: center;
+		        margin-bottom: 10px;
+		        margin-top: 5px;
+	        }
+	        
+	        .obit-link{
+		        text-align: center;
+		        margin-top: 10px;
+	        }
+	        
+	        .obit-link > a{
+		        margin-right: 10px;
+		        margin-left: 10px;
+	        }
+	        
+	        .smaller{
+		        font-size: 12pt;
+		        margin-bottom: 0;
+	        }
+	        
+        </style>
     </head>
 
     <body>
@@ -37,23 +88,30 @@
           </div>
         </div>
         <div class="container">
-            {% if logged_in == True%}
-                {% if bookmarks|length == 0 %}
-                No Bookmarks.
-                {% else %}
+                <div class="row">
+	                <div class="span12">
+	                	<p class="lead huge">Bookmarks</p>
+		                <p class="lead">View and edit your bookmarked gravesites.</p>
+		                <hr>
+	                </div>
+                </div>
+                <div class="row">
                     {% for obit in bookmarks %}
-                        <div>
-                            name : {{obit.name}}
-                            <br />
-                            <a href="{{obit.obituary_url}}">See obituary</a>
-                            <br />
-                            <a href="{{obit.remove_bookmark_url}}">Remove from bookmarks</a>
-                        </div>
+                        <div class="span4 obit-container">
+                        {% if obit.get_photo_urls()[0] %}
+                        <div class="obit-image img-rounded" style="background-image:url({{obit.get_photo_urls()[0] }});"></div>
+                        {%else%}
+                        <div class="obit-image img-rounded"></div>
+                        {%endif%}
+		                <p class="obit-name lead">{{obit.name}}</p>
+		                <p class="obit-name lead smaller">Born: {{obit.dob_web}}</p>
+		                <p class="obit-name lead smaller">Died: {{obit.dod_web}}</p>
+		                <p class="obit-link"><a href="{{obit.obituary_url}}" class="btn btn-info">View details</a><a href="{{obit.remove_bookmark_url}}" class="btn btn-danger">Remove</a></p>
+	                </div>
+	                {% else %}
+	                these are not the bookmarks you are looking for.
                     {% endfor %}
-                {% endif %}
-            {% else %}
-                You can view your saved obituaries here onces you <a href="/log_in">log in</a> or <a href="/create_account">create an account</a>.
-            {% endif %}
+                </div>
         </div>
     </body>
 </html>
