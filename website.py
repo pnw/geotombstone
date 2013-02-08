@@ -111,6 +111,45 @@ class SearchHandler(handlers.WebHandler):
 			return self.send_server_error(e.message)
 		else:
 			return self.send_success(response)
+			
+class AddHandler(handlers.WebHandler):
+	def get(self):
+		'''
+		Write out the add page
+		'''
+		session = get_current_session()
+		user = self.get_user_from_session(session)
+		logged_in = True if user else False
+		
+		
+		# needed for redirect on login page
+		if not logged_in:
+			session['last_page'] = self.request.url
+		
+		
+		# grab the lat, lon from the headers
+		try:
+			geo_point = self.request.headers['X-Appengine-Citylatlong']
+		except KeyError:
+			# default to boston
+			geo_point = '42.3584308,-71.0597732'
+			# default to san fransisco
+#			geo_point = '37.7749295,-122.4194155'
+		lat,lon = geo_point.split(',')
+		lat = float(lat)
+		lon = float(lon)
+		
+		template_values = {
+						'logged_in' : logged_in,
+						'admin' : google_users.is_current_user_admin(),
+						'lat' : lat,
+						'lon' : lon
+						}
+		
+		template = jinja_environment.get_template('templates/add.html')
+		self.response.out.write(template.render(template_values))
+	
+
 class ObituaryPageHandler(handlers.WebHandler):
 	def get(self,oid):
 		'''
@@ -460,6 +499,7 @@ class ViewBookmarksHandler(handlers.WebHandler):
 		return self.response.out.write(template.render(template_values))
 app = webapp2.WSGIApplication([
 							('/search',SearchHandler),
+							('/add',AddHandler),
 							('/obituary/(.*)/add_narrative',AddNarrativeHandler),
 							('/obituary/(.*)/add_message',AddMessageHandler),
 							('/obituary/(.*)/add_photo',AddPhotoHandler),

@@ -78,6 +78,7 @@
               <li><a href="/admin/users">Admin</a></li>
               {% endif %}
               <li class="active"><a href="/bookmarks">Bookmarks</a></li>
+              <li><a href="/add">Add Marker</a></li>
               {% if logged_in == True%}
               <li><a href="/log_out">Log Out</a></li>
               {% else %}
@@ -109,7 +110,7 @@
 		                <p class="obit-link"><a href="{{obit.obituary_url}}" class="btn btn-info">View details</a><a href="{{obit.remove_bookmark_url}}" class="btn btn-danger">Remove</a></p>
 	                </div>
 	                {% else %}
-	                these are not the bookmarks you are looking for.
+	                <div class="alert alert-info"><strong>You haven't added any bookmarks yet.</strong> Click "Bookmark" on a gravesite page and it will appear here.</div>
                     {% endfor %}
                 </div>
         </div>

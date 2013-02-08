@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+
+        <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+        Remove this if you use the .htaccess -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+        <title>Bookmarks</title>
+        <meta name="description" content="" />
+        <meta name="author" content="Patrick Walsh" />
+         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" href="/img/favicon.png" type="image/png" />
+
+        <!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+        <link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
+        <style>
+	        
+	        .huge{
+		        font-size: 30pt;
+		        font-weight: 400;
+		        margin-top: 50px;
+	        }
+	        
+	        .obit-container{
+		        background-color:#f8f8f8;
+/* 		        height: 400px; */
+/* overflow: auto; */
+		        border-radius: 5px;
+		        box-shadow: 0px 0px 4px #a8a8a8;
+		        margin-bottom: 20px;
+	        }
+	        
+	        .obit-image{
+		        width: 150px;
+		        height: 150px;
+/* 		        height: auto; */
+/* 		        background-color: red; */
+		        margin-left: auto;
+		        margin-right: auto;
+		        margin-top: 10px;
+		        background-image: url("../img/nopicture.png");
+		        background-size: cover;
+	        }
+	        
+	        .obit-name{
+		        text-align: center;
+		        margin-bottom: 10px;
+		        margin-top: 5px;
+	        }
+	        
+	        .obit-link{
+		        text-align: center;
+		        margin-top: 10px;
+	        }
+	        
+	        .obit-link > a{
+		        margin-right: 10px;
+		        margin-left: 10px;
+	        }
+	        
+	        .smaller{
+		        font-size: 12pt;
+		        margin-bottom: 0;
+	        }
+	        
+	        .center{
+		        margin-left: auto;
+		        margin-right: auto;
+/* 		        float: none; */
+		        background-color: gray;
+	        }
+	        
+	        #map_canvas{
+		        width: 100%;
+		        height: 100%;
+/* 		        background-color: red; */
+		        
+	        }
+	        
+	        .map-container{
+		        width: 100%;
+		        height: 300px;
+		        border-radius: 10px !important;
+		        position: relative;
+	        }
+	        
+	        .pin{
+		        width: 50px;
+		        height: 50px;
+/* 		        background-color: gray; */
+		        background-image: url(../img/pin.png);
+/* 		        background-size: contain; */
+		        position: absolute;
+		        top: 50%;
+		        margin-top: -50px;
+		        left: 50%;
+		        margin-left: -25px;
+	        }
+	        
+	        .addform{
+		        margin-top: 50px;
+	        }
+	        
+	        .clearfix{
+		        clear: both;
+	        }
+	        
+	        .center{
+		        margin-left: auto;
+		        margin-right: auto;
+	        }
+	        
+	        .input-container{
+/* 		        background-color: red; */
+		        overflow: auto;
+		        width: 640px;
+		        margin-left: auto;
+		        margin-right: auto;
+	        }
+	        
+	        
+        </style>
+    </head>
+
+    <body onload="initialize()">
+        <div class="navbar">
+          <div class="navbar-inner">
+            <a class="brand" href="/">GeoTombstone</a>
+            <ul class="nav">
+              <li><a href="/">Home</a></li>
+              {% if admin == True %}
+              <li><a href="/admin/users">Admin</a></li>
+              {% endif %}
+              <li><a href="/bookmarks">Bookmarks</a></li>
+              <li class="active"><a href="/bookmarks">Add Marker</a></li>
+              {% if logged_in == True%}
+              <li><a href="/log_out">Log Out</a></li>
+              {% else %}
+              <li><a href="/log_in">Log In</a></li>
+              <li><a href="/create_account">Create Account</a></li>
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+        <div class="container">
+                <div class="row">
+	                <div class="span12">
+	                	<p class="lead huge">Add a Marker</p>
+		                <p class="lead">Drag the map to fine-tune the location, then enter more information below.</p>
+		                <hr>
+	                </div>
+                </div>
+                <div class="row">
+                    <div class="span12">
+                    	<div class="map-container">
+		                    <div id="map_canvas" class=""></div>
+		                    <div class="pin"></div>
+                    	</div>
+                    </div>
+
+                    <div class="span12 addform">
+                    	<p class="lead">Enter as many of the following pieces of information as you can:</p>
+	                    <form id="newform" class="well" method="post" action="">
+	                    	<div class="input-container">
+		                    	<div class="span4">
+				                    <label>Name:</label><input type="text" name="name" value="" placeholder="Name"><br />
+				                    <label>Date Born:</label><input type="text" name="dob" value="" placeholder="MM/DD/YYYY"><br />
+				                    <label>Date Deceased:</label><input type="text" name="dod" value="" placeholder="MM/DD/YYYY"><br />
+				                    <label>Place Born:</label><input type="text" name="pob" value="" placeholder="Boston, MA"><br />
+				                    <label>Place Deceased:</label><input type="text" name="pod" value="" placeholder="San Diego, CA"><br />
+		                    	</div>
+		                    	<div class="span4">
+				                    <label>Epitaph:</label><input type="text" name="tombstone_message" value="" placeholder='"Quote"'/>
+				                    <label>Mother's Name:</label><input type="text" name="mothers_name" value="" placeholder="Name"/>
+				                    <label>Father's Name:</label><input type="text" name="fathers_name" value="" placeholder="Name"/>
+				                    <label>Cause of Death:</label><input type="text" name="cod" value="" placeholder="Cause"/>
+		                    	</div>
+	                    	</div>
+	                    	<div class="clearfix"></div>
+	                    	<input type="hidden" name="lat" id="lat">
+	                    	<input type="hidden" name="lon" id="lon">
+		                    <button id="addmarker" class="btn btn-success btn-large pull-right" name="submit">Add Marker</button>
+		                    <div class="clearfix"></div>
+	                    </form>
+                    </div>
+                </div>
+        </div>
+        
+        <script type="text/javascript"
+          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCI2IPaNDkuFKIxZdfTvABG3N7CiG9GgDM&sensor=true">
+        </script>
+        <script type="text/javascript">
+          // initial lat
+          var initLat = {{ lat }};
+          // initial lon
+          var initLon = {{ lon }};
+          // initialize the map globally
+          var map;
+          function initialize() {
+            var mapOptions = {
+              center: new google.maps.LatLng(initLat,initLon),
+              zoom: 7,
+              mapTypeId: google.maps.MapTypeId.ROADMAP,
+              
+				mapTypeControl: true,
+				mapTypeControlOptions: {
+				    style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+				    position: google.maps.ControlPosition.BOTTOM_CENTER
+				},
+				panControl: true,
+				panControlOptions: {
+				    position: google.maps.ControlPosition.RIGHT_CENTER
+				},
+				zoomControl: true,
+				zoomControlOptions: {
+				    style: google.maps.ZoomControlStyle.LARGE,
+				    position: google.maps.ControlPosition.RIGHT_CENTER
+				},
+				scaleControl: true,
+				scaleControlOptions: {
+				    position: google.maps.ControlPosition.TOP_LEFT
+				},
+				streetViewControl: false,
+				streetViewControlOptions: {
+				    position: google.maps.ControlPosition.LEFT_TOP
+				},
+				minZoom: 3,
+				maxZoom: 21
+    
+    
+            };
+            map = new google.maps.Map(document.getElementById("map_canvas"),
+                mapOptions);
+          }
+        </script>
+        <script type="text/javascript" src="../js/jquery.min.js"></script>
+        <script type="text/javascript">
+	        $("#addmarker").click(function(e){
+/* 		        e.preventDefault() */
+		        
+		        crd = map.getCenter();
+		        
+		        $("#lat").val(crd.Ya);
+		        $("#lon").val(crd.Za);
+		        
+		        $("#newform").submit()
+	        })
+        </script>
+        
+        
+    </body>
+</html>
