@@ -24,6 +24,20 @@ class WebUser(BaseModel):
 	'''
 	email = ndb.StringProperty(required = True)
 	pw = ndb.StructuredProperty(PasswordProperty,required = True,indexed = False)
+	
+	# replicate app user fields for packaging up to phone
+	name = ndb.StringProperty()
+	phone = ndb.StringProperty()
+	address = ndb.StringProperty()
+	
+	def package(self):
+		'''Replicates the packagein AppUser'''
+		return {
+			'name' : self.name or '',
+			'email' : self.email or '',
+			'phone' : self.phone or '',
+			'address' : self.address or ''
+			}
 	@ndb.transactional
 	def add_bookmark(self,obit_id):
 		bm = Bookmark.get_by_id(obit_id, parent=self.key)
@@ -87,7 +101,7 @@ class Obituary(BaseModel):
 	cod = ndb.StringProperty() # cause of death
 	cod_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.cod),repeated = True)
 	
-	uploader_key = ndb.KeyProperty(AppUser)
+	uploader_key = ndb.KeyProperty()
 	tombstone_message = ndb.TextProperty()
 	
 	tags = ndb.ComputedProperty(

@@ -10,6 +10,7 @@ from google.appengine.ext import blobstore
 from google.appengine.ext.webapp import blobstore_handlers
 from gaesessions import get_current_session
 from google.appengine.api import users as google_users
+from geo import geohash
 jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 class LandingHandler(handlers.WebHandler):
 	def get(self):
@@ -125,6 +126,7 @@ class AddHandler(handlers.WebHandler):
 		# needed for redirect on login page
 		if not logged_in:
 			session['last_page'] = self.request.url
+			return self.redirect('/log_in')
 		
 		
 		# grab the lat, lon from the headers
@@ -148,7 +150,46 @@ class AddHandler(handlers.WebHandler):
 		
 		template = jinja_environment.get_template('templates/add.html')
 		self.response.out.write(template.render(template_values))
-	
+	def post(self):
+		'''
+		User is uploading an obituary.
+		'''
+		session = get_current_session()
+		user = self.get_user_from_session(session)
+		
+		lat = self.rget('lat',float,True)
+		lon = self.rget('lon',float,True)
+		ghash = geohash.encode(lat,lon)
+		
+		dob = self.rget('dob',self.parse_date)
+		dod = self.rget('dod',self.parse_date)
+		
+		pob = self.rget('pob')
+		pod = self.rget('pod')
+		
+		name = self.rget('name')
+		mothers_name = self.rget('mothers_name')
+		fathers_name = self.rget('fathers_name')
+		cod = self.rget('cod')
+		tombstone_message = self.rget('tombstone_message')
+		
+#		assert dob or dod or pob or pod or name or tombstone_message, \
+#			'Must provide one piece of information'
+		
+		obit = self.create_entity(models.Obituary,
+								name = name,
+								dob = dob,
+								dod = dod,
+								pob = pob,
+								pod = pod,
+								ghash = ghash,
+								mothers_name = mothers_name,
+								fathers_name = fathers_name,
+								cod = cod,
+								tombstone_message = tombstone_message,
+								uploader_key = user.key
+								)
+		return self.redirect(obit.obituary_url)
 
 class ObituaryPageHandler(handlers.WebHandler):
 	def get(self,oid):
