@@ -112,6 +112,7 @@
         <div class="container">
             <div class="row">
             	<div class="span4">
+            			<a href="{{last_search_url}}" class="btn"><i class="icon-arrow-left"></i> Back to search</a>
                         {% for photo_url in obituary.get_photo_urls() %}
                             <img class="obit_img img-rounded" src="{{ photo_url }}" />
                         {% endfor %}
@@ -140,7 +141,7 @@
                     <p class="lead"  style="margin-top: 20px;">"{{ obituary.tombstone_message }}"</p>
                     {% endif %}
 -->
-                    <p><a href="http://maps.google.com/maps?daddr={{obituary.geo_point.lat}},{{obituary.geo_point.lon}}" target="_blank" class="btn btn-success" style="margin-top:20px;">Directions to Gravesite</a></p>
+                    <p style="margin-top:20px;"><a href="http://maps.google.com/maps?daddr={{obituary.geo_point.lat}},{{obituary.geo_point.lon}}" target="_blank" class="btn btn-success">Directions to Gravesite</a><a href="{{view_on_map_url}}" class="btn btn-success" style="margin-left:20px;">View on map</a></p>
                     {% if editable %}
                     <button id="editbtn" class="btn btn-info" style="margin-top: 10px;">Edit Information</button>
                     {% else %}
@@ -153,7 +154,7 @@
                         <a href="{{ obituary.bookmark_url }}" class="btn btn-primary" style="margin-top:10px;">Bookmark</a>
                     {% endif %}
                     <br/>
-<!--                 	<a href="{{view_on_map_url}}" class="btn btn-success" style="margin-top:10px;">View on map</a> -->
+<!--                 	
                 	</div>
                     {% if editable %}
                     <div class="editform collapse">
