@@ -162,7 +162,7 @@
 
                     <div class="span12 addform">
                     	<p class="lead">Enter as many of the following pieces of information as you can:</p>
-	                    <form id="newform" class="well" method="post" action="/api/create_geotag">
+	                    <form id="newform" class="well" method="post" action="">
 	                    	<div class="input-container">
 		                    	<div class="span4">
 				                    <label>Name:</label><input type="text" name="name" value="" placeholder="Name"><br />
@@ -180,10 +180,10 @@
 		                    	<div class="span8">
 		                    		<hr>
 		                    		<p class="lead smaller">Your information (you'll only have to enter this once):</p>
-			                    	<label>Your name:</label><input type="text" name="owner_name" value="{{owner_name}}" placeholder='John Doe'/>
-				                    <label>Your email:</label><input type="text" name="owner_address" value="{{owner_address}}" placeholder="john@doe.com"/>
-				                    <label>Your address:</label><input type="text" name="owner_phone" value="{{owner_phone}}" placeholder="33 Union St. Boston, MA 02108"/>
-				                    <label>Your number:</label><input type="text" name="owner_email" value="{{owner_email}}" placeholder="1-234-5678"/>
+			                    	<label>Your name:</label><input type="text" name="owner_name" value="{{owner.name}}" placeholder='John Doe'/>
+				                    <label>Your email:</label><input type="text" name="owner_email" value="{{owner.public_email}}" placeholder="john@doe.com"/>
+				                    <label>Your address:</label><input type="text" name="owner_address" value="{{owner.address}}" placeholder="33 Union St. Boston, MA 02108"/>
+				                    <label>Your number:</label><input type="text" name="owner_phone" value="{{owner.phone}}" placeholder="1-234-5678"/>
 		                    	</div>
 	                    	</div>
 	                    	<div class="clearfix"></div>

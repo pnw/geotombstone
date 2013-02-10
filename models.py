@@ -26,6 +26,7 @@ class WebUser(BaseModel):
 	pw = ndb.StructuredProperty(PasswordProperty,required = True,indexed = False)
 	
 	# replicate app user fields for packaging up to phone
+	public_email = ndb.StringProperty()
 	name = ndb.StringProperty()
 	phone = ndb.StringProperty()
 	address = ndb.StringProperty()
@@ -34,7 +35,7 @@ class WebUser(BaseModel):
 		'''Replicates the packagein AppUser'''
 		return {
 			'name' : self.name or '',
-			'email' : self.email or '',
+			'public_email' : self.public_email or '',
 			'phone' : self.phone or '',
 			'address' : self.address or ''
 			}

@@ -145,7 +145,8 @@ class AddHandler(handlers.WebHandler):
 						'logged_in' : logged_in,
 						'admin' : google_users.is_current_user_admin(),
 						'lat' : lat,
-						'lon' : lon
+						'lon' : lon,
+						'owner' : user.package()
 						}
 		
 		template = jinja_environment.get_template('templates/add.html')
@@ -175,7 +176,6 @@ class AddHandler(handlers.WebHandler):
 		
 #		assert dob or dod or pob or pod or name or tombstone_message, \
 #			'Must provide one piece of information'
-		
 		obit = self.create_entity(models.Obituary,
 								name = name,
 								dob = dob,
@@ -189,6 +189,18 @@ class AddHandler(handlers.WebHandler):
 								tombstone_message = tombstone_message,
 								uploader_key = user.key
 								)
+		
+		# owner info
+		owner_name = self.rget('owner_name')
+		owner_email = self.rget('owner_email')
+		owner_phone = self.rget('owner_phone')
+		owner_address = self.rget('owner_address')
+		user.name = owner_name
+		user.public_email = owner_email
+		user.phone = owner_phone
+		user.address = owner_address
+		user.put()
+		
 		return self.redirect(obit.obituary_url)
 
 class ObituaryPageHandler(handlers.WebHandler):
