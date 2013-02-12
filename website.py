@@ -550,6 +550,7 @@ class ViewBookmarksHandler(handlers.WebHandler):
 						}
 		template = jinja_environment.get_template('templates/bookmarks.html')
 		return self.response.out.write(template.render(template_values))
+	
 app = webapp2.WSGIApplication([
 							('/search',SearchHandler),
 							('/add',AddHandler),

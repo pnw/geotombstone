@@ -71,7 +71,7 @@
 	<div class="container">
 		<div class="content">
 			{% if error %}
-				<div class="alert alert-danger">{%if error=='email'%}That email is already in use. <a href="/log_in">Login</a>{%elif error=='pw'%}Passwords didn't match. Please try again.{%endif%}</div>
+				<div class="alert alert-danger">{%if error=='email'%}That email is already in use. <a href="/log_in">Login</a>{%elif error=='pw'%}Passwords didn't match. Please try again.{%elif error=='length'%}Please enter a password that is at least 6 characters long.{%endif%}</div>
 			{%endif%}
 			<div class="row">
 				<div class="login-form">
@@ -86,7 +86,7 @@
 								<input type="password" placeholder="Password" id="pw" name="pw" value="{{pw}}">
 							</div>
 							<div class="clearfix">
-								<input type="password" placeholder="Repeat Password" id="pw2"" name="pw_2" value="{{pw2}}">
+								<input type="password" placeholder="Repeat Password" id="pw2" name="pw_2" value="{{pw2}}">
 							</div>
 							<button class="btn btn-primary" id="create" type="submit" disabled>Create Account</button>
 						</fieldset>

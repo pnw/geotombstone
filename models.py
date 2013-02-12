@@ -35,7 +35,7 @@ class WebUser(BaseModel):
 		'''Replicates the packagein AppUser'''
 		return {
 			'name' : self.name or '',
-			'public_email' : self.public_email or '',
+			'email' : self.public_email or '',
 			'phone' : self.phone or '',
 			'address' : self.address or ''
 			}
@@ -52,6 +52,7 @@ class WebUser(BaseModel):
 		
 class Bookmark(ndb.Model):
 	'''User bookmarks an obituary'''
+	obit_key = ndb.ComputedProperty(lambda self: ndb.Key(Obituary,self.key.id()))
 class SearchableDate(ndb.Model):
 	'''Date in a format that can searched without inequalities
 	'''
@@ -237,6 +238,9 @@ class Obituary(BaseModel):
 	@property
 	def remove_bookmark_url(self):
 		return '{}/obituary/{}/remove_bookmark'.format(utils.BASE_URL,self.key.id())
+	@property
+	def delete_obituary_url(self):
+		return '{}/admin/obituaries/{}/delete'.format(utils.BASE_URL,self.key.id())
 	def package(self,uploader = None,messages = None, narratives = None,web=False):
 		'''
 		Packages an obituary into a dict for the phone
