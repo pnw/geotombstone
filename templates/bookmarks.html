@@ -105,8 +105,8 @@
                         <div class="obit-image img-rounded"></div>
                         {%endif%}
 		                <p class="obit-name lead">{{obit.name}}</p>
-		                <p class="obit-name lead smaller">Born: {{obit.dob_web}}</p>
-		                <p class="obit-name lead smaller">Died: {{obit.dod_web}}</p>
+		                <p class="obit-name lead smaller">Born: <span class="born">{{obit.dob_web}}</span></p>
+		                <p class="obit-name lead smaller">Died: <span class="died">{{obit.dod_web}}</span></p>
 		                <p class="obit-link"><a href="{{obit.obituary_url}}" class="btn btn-info">View details</a><a href="{{obit.remove_bookmark_url}}" class="btn btn-danger">Remove</a></p>
 	                </div>
 	                {% else %}
@@ -114,5 +114,19 @@
                     {% endfor %}
                 </div>
         </div>
+        <script type="text/javascript" src="../js/jquery.min.js"></script>
+        <script type="text/javascript">
+	        
+	        $(document).on("ready",function(){
+		        if ($(".born").text() == ""){
+			        $(".born").text("Unknown")
+		        }
+		        
+		        if ($(".died").text() == ""){
+			        $(".died").text("Unknown")
+		        }
+	        })
+	        
+        </script>
     </body>
 </html>
