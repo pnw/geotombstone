@@ -119,7 +119,25 @@
           
           {% endif %}
           
+          .walkthru{
+	          position: absolute;
+	          z-index: 10;
+	          width: 500px;
+	          background-color: #ffffff;
+	          border-radius: 5px;
+	          opacity: 0.95;
+	          box-shadow: 0px 0px 3px #5e5e5e;
+	          left: 50%;
+	          margin-left: -250px;
+	          padding: 20px;
+	          padding-top: 50px;
+	          text-align: center;
+	          top: -200px;
+          }
           
+          .close-link{
+	          color: #3a3a3a;
+          }
           
           
         </style>
@@ -173,6 +191,13 @@
             };
             map = new google.maps.Map(document.getElementById("map_canvas"),
                 mapOptions);
+            
+            google.maps.event.addListenerOnce(map, 'idle', function(){
+			    $(".walkthru").animate({"top":"0px"},200)
+			    $("#map_canvas").click(function(){
+				    hideHelp()
+			    })
+			});
             // perform initial search
             {% if search.oid %}
             
@@ -210,6 +235,14 @@
             </ul>
           </div>
         </div>
+        
+        <div class="walkthru">
+	        <h3>Welcome to Geotombstone!</h3>
+	        <p class="lead">Browse markers using the map, or search by entering any piece of information in the search bar.</p>
+<!-- 	        <a class="close-link btn"><i class="icon-remove"></i> Close</a> -->
+        </div>
+        
+        
 <!--         <div class="container hidden-phone"> -->
 		{% if desktop %}
         <div class="sidebar">
@@ -261,6 +294,18 @@ dedications that associate physical locations with people we have lost.
 	     	
      	</div>
      	{% endif %}
+     	
+     	<script type="text/javascript">
+	     	hideHelp = function(){
+		     	$(".walkthru").animate({"top":"-200px"},200)
+	     	}
+	     	
+	     	$(document).on("ready",function(){
+		     	$(".close-link,.sidebar").click(function(){
+			     	hideHelp()
+		     	})
+	     	})
+     	</script>
 
       </body>
       

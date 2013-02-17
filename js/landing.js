@@ -4,7 +4,10 @@ google.maps.Map.prototype.clearOverlays = function(){
 	// clears all the markers from the map
 	for (var i = 0; i < markersArray.length; i++){
 		markersArray[i].setMap(null);
+/* 		markersArray.eq(i).setMap(null); */
 	}
+	
+	console.log(markersArray)
 }
 function placeMarker(location){
 	var marker = new google.maps.Marker({
