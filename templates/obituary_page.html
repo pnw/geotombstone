@@ -320,10 +320,12 @@
 			    var r = confirm("Are you sure you want to delete this entry? This action cannot be reversed.");
 			    if (r === true){
 			        console.log('True');
-			        var xhr = new XMLHttpRequest();
-                    xhr.open('POST','{{ obituary.delete_obituary_url }}',/*async*/ false);
-                    xhr.send();
-                    window.location = '/'
+                    $.post('{{obituary.delete_obituary_url}}',function(){
+                        window.location = '/';
+                    });
+                    // var xhr = new XMLHttpRequest();
+           //          xhr.open('POST','{{ obituary.delete_obituary_url }}',/*async*/ false);
+           //          xhr.send();
 			    }
 			})
 			
