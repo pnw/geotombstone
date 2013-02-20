@@ -311,7 +311,11 @@ dedications that associate physical locations with people we have lost.
 		     	})
 		     	
 		     	if ($.browser.msie){
-			     	alert("Oh god. Internet Explorer");
+			     	var r=confirm("It looks like you're using Internet Explorer. Unfortunately, Geotombstone is only supported on browsers like Chrome, Firefox, and Opera. Click \"Ok\" below to be taken to the Firefox download page.");
+					if (r==true)
+					  {
+					  window.location = "http://www.firefox.com";
+					  }
 		     	}
 		     	
 	     	})
