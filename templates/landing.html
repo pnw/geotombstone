@@ -115,6 +115,10 @@
 		           padding:10px;
 	          }
 	          
+	          .walkthru{
+		          display:none;
+	          }
+	          
           }
           
           {% endif %}
@@ -207,6 +211,7 @@
           }
         </script>
         <script type="text/javascript" src="../js/jquery.min.js"></script>
+        <script src="http://code.jquery.com/jquery-migrate-1.1.1.js"></script>
         <script type="text/javascript" src="../js/landing.js"></script>
     </head>
     
@@ -237,7 +242,7 @@
         </div>
         
         <div class="walkthru">
-	        <h3>Welcome to Geotombstone!</h3>
+	        <h3>Welcome to Geotombstone</h3>
 	        <p class="lead">Browse markers using the map, or search by entering any piece of information in the search bar.</p>
 <!-- 	        <a class="close-link btn"><i class="icon-remove"></i> Close</a> -->
         </div>
@@ -289,7 +294,7 @@ dedications that associate physical locations with people we have lost.</p>
 dedications that associate physical locations with people we have lost.
 			     	</p>
 			     	<a class="btn btn-large btn-primary">Download for iPhone</a>
-			     	<a class="btn btn-large btn-success">Download for Android</a>
+			     	<a class="btn btn-large btn-success" href="https://play.google.com/store/apps/details?id=com.wGeotombstone">Download for Android</a>
 			     	<p style="margin-top: 20px;"><a href="/?desktop=true">Desktop Site</a></p>
 	     	
      	</div>
@@ -304,6 +309,11 @@ dedications that associate physical locations with people we have lost.
 		     	$(".close-link,.sidebar").click(function(){
 			     	hideHelp()
 		     	})
+		     	
+		     	if ($.browser.msie){
+			     	alert("Oh god. Internet Explorer");
+		     	}
+		     	
 	     	})
      	</script>
 
