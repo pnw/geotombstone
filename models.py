@@ -240,7 +240,7 @@ class Obituary(BaseModel):
 		return '{}/obituary/{}/remove_bookmark'.format(utils.BASE_URL,self.key.id())
 	@property
 	def delete_obituary_url(self):
-		return '{}/admin/obituaries/{}/delete'.format(utils.BASE_URL,self.key.id())
+		return '/admin/obituaries/{}/delete'.format(self.key.id())
 	def package(self,uploader = None,messages = None, narratives = None,web=False):
 		'''
 		Packages an obituary into a dict for the phone
