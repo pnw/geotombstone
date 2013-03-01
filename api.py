@@ -8,7 +8,7 @@ import logging
 from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext import blobstore
 
-
+#
 class CreateUserHandler(handlers.APIHandler):
 	def get(self):
 		upload_url = '/api/create_user'
