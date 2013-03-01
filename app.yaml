@@ -21,15 +21,15 @@ handlers:
 
 - url: /stats.*
   script: google.appengine.ext.appstats.ui.app
-  
+
 - url: /img
   static_dir: img
 - url: /css
   static_dir: css
 - url: /js
   static_dir: js
- 
- 
+
+
 
 # all the other handlers
 - url: /.*

@@ -12,6 +12,8 @@ from gaesessions import get_current_session
 from google.appengine.api import users as google_users
 from geo import geohash
 jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
+
+
 class LandingHandler(handlers.WebHandler):
 	def get(self):
 		'''
@@ -20,12 +22,9 @@ class LandingHandler(handlers.WebHandler):
 		session = get_current_session()
 		user = self.get_user_from_session(session)
 		logged_in = True if user else False
-		
-		
 		# needed for redirect on login page
 		if not logged_in:
 			session['last_page'] = self.request.url
-		
 		
 		# grab the lat, lon from the headers
 		try:
@@ -35,7 +34,7 @@ class LandingHandler(handlers.WebHandler):
 			geo_point = '42.3584308,-71.0597732'
 			# default to san fransisco
 #			geo_point = '37.7749295,-122.4194155'
-		lat,lon = geo_point.split(',')
+		lat, lon = geo_point.split(',')
 		lat = float(lat)
 		lon = float(lon)
 		
@@ -48,7 +47,7 @@ class LandingHandler(handlers.WebHandler):
 		else:
 			desktop = True
 		
-		desktop_param = self.request.get("desktop","notfound")
+		desktop_param = self.request.get("desktop", "notfound")
 		
 		if desktop_param != "notfound":
 			desktop = desktop_param
@@ -57,35 +56,37 @@ class LandingHandler(handlers.WebHandler):
 		
 		# check for special cases for the initial search
 		initial_search = {
-						'name' : self.rget('name') or '',
-						'pob' : self.rget('pob') or '',
-						'pod' : self.rget('pod') or '',
-						'dob' : self.rget('dob') or '',
-						'dod' : self.rget('dod') or '',
-						'oid' : self.rget('oid') or ''
+						'name': self.rget('name') or '',
+						'pob': self.rget('pob') or '',
+						'pod': self.rget('pod') or '',
+						'dob': self.rget('dob') or '',
+						'dod': self.rget('dod') or '',
+						'oid': self.rget('oid') or ''
 						}
 		template_values = {
-						'logged_in' : logged_in,
-						'admin' : google_users.is_current_user_admin(),
-						'lat' : lat,
-						'lon' : lon,
-						'desktop' : desktop,
-						'search' : initial_search
+						'logged_in': logged_in,
+						'admin': google_users.is_current_user_admin(),
+						'lat': lat,
+						'lon': lon,
+						'desktop': desktop,
+						'search': initial_search
 						}
 		
 		template = jinja_environment.get_template('templates/landing.html')
 		self.response.out.write(template.render(template_values))
+
+
 class SearchHandler(handlers.WebHandler):
 	def get(self):
 		'''
 		Ajax call to search for obituaries
 		'''
 		try:
-			oid = self.rget('oid',int)
+			oid = self.rget('oid', int)
 			logging.info('oid: {}'.format(oid))
 			if oid:
 				obit = models.Obituary.get_by_id(oid)
-				obits = [obit,]
+				obits = [obit, ]
 			else:
 				# store this search for the future
 				session = get_current_session()
@@ -95,24 +96,24 @@ class SearchHandler(handlers.WebHandler):
 				# only take top 50 matched obits
 				obits = list(obits)[:75]
 			
-			
 			user = self.get_user_from_session()
 			response = {
-					'results' : [o.package(web=True) for o in obits],
-					'logged_in' : True if user else False
+					'results': [o.package(web=True) for o in obits],
+					'logged_in': True if user else False
 					}
-		except self.InputError,e:
+		except self.InputError, e:
 			utils.log_error(e)
 			logging.info('input error')
 			key = e.message.split(':')[0]
-			return self.send_response(400,e.message,{'invalid_input':key})
-		except Exception,e:
+			return self.send_response(400, e.message, {'invalid_input': key})
+		except Exception, e:
 			utils.log_error(e)
 			logging.info('exception')
 			return self.send_server_error(e.message)
 		else:
 			return self.send_success(response)
 			
+
 class AddHandler(handlers.WebHandler):
 	def get(self):
 		'''
@@ -122,12 +123,10 @@ class AddHandler(handlers.WebHandler):
 		user = self.get_user_from_session(session)
 		logged_in = True if user else False
 		
-		
 		# needed for redirect on login page
 		if not logged_in:
 			session['last_page'] = self.request.url
 			return self.redirect('/log_in')
-		
 		
 		# grab the lat, lon from the headers
 		try:
@@ -137,38 +136,51 @@ class AddHandler(handlers.WebHandler):
 			geo_point = '42.3584308,-71.0597732'
 			# default to san fransisco
 #			geo_point = '37.7749295,-122.4194155'
-		lat,lon = geo_point.split(',')
+		lat, lon = geo_point.split(',')
 		lat = float(lat)
 		lon = float(lon)
 		
 		template_values = {
-						'logged_in' : logged_in,
-						'admin' : google_users.is_current_user_admin(),
-						'lat' : lat,
-						'lon' : lon,
-						'owner' : user.package()
-						}
+			'logged_in': logged_in,
+			'admin': google_users.is_current_user_admin(),
+			'lat': lat,
+			'lon': lon,
+			'owner': user.package(),
+			'form': {
+				'obit_name': self.rget('obit_name') or '',
+				'dob': self.rget('dob') or '',
+				'dod': self.rget('dod') or '',
+				'pob': self.rget('pob') or '',
+				'pod': self.rget('pod') or '',
+				'tombstone_message': self.rget('tombstone_message') or '',
+				'mothers_name': self.rget('mothers_name') or '',
+				'fathers_name': self.rget('fathers_name') or '',
+				'cod': self.rget('cod') or ''
+			}
+		}
 		
 		template = jinja_environment.get_template('templates/add.html')
 		self.response.out.write(template.render(template_values))
+	
 	def post(self):
 		'''
 		User is uploading an obituary.
 		'''
+		logging.info(self.request.params)
 		session = get_current_session()
 		user = self.get_user_from_session(session)
 		
-		lat = self.rget('lat',float,True)
-		lon = self.rget('lon',float,True)
-		ghash = geohash.encode(lat,lon)
+		lat = self.rget('lat', float, True)
+		lon = self.rget('lon', float, True)
+		ghash = geohash.encode(lat, lon)
 		
-		dob = self.rget('dob',self.parse_date)
-		dod = self.rget('dod',self.parse_date)
+		dob = self.rget('dob', self.parse_date)
+		dod = self.rget('dod', self.parse_date)
 		
 		pob = self.rget('pob')
 		pod = self.rget('pod')
 		
-		name = self.rget('name')
+		name = self.rget('obit_name')
 		mothers_name = self.rget('mothers_name')
 		fathers_name = self.rget('fathers_name')
 		cod = self.rget('cod')
@@ -177,17 +189,17 @@ class AddHandler(handlers.WebHandler):
 #		assert dob or dod or pob or pod or name or tombstone_message, \
 #			'Must provide one piece of information'
 		obit = self.create_entity(models.Obituary,
-								name = name,
-								dob = dob,
-								dod = dod,
-								pob = pob,
-								pod = pod,
-								ghash = ghash,
-								mothers_name = mothers_name,
-								fathers_name = fathers_name,
-								cod = cod,
-								tombstone_message = tombstone_message,
-								uploader_key = user.key
+								name=name,
+								dob=dob,
+								dod=dod,
+								pob=pob,
+								pod=pod,
+								ghash=ghash,
+								mothers_name=mothers_name,
+								fathers_name=fathers_name,
+								cod=cod,
+								tombstone_message=tombstone_message,
+								uploader_key=user.key
 								)
 		
 		# owner info
@@ -203,8 +215,9 @@ class AddHandler(handlers.WebHandler):
 		
 		return self.redirect(obit.obituary_url)
 
+
 class ObituaryPageHandler(handlers.WebHandler):
-	def get(self,oid):
+	def get(self, oid):
 		'''
 		Page to display detail about a deceased person
 		'''
@@ -218,15 +231,15 @@ class ObituaryPageHandler(handlers.WebHandler):
 			session['last_page'] = self.request.url
 		
 		# grab the obituary
-		obit = self.get_by_id(models.Obituary,oid)
+		obit = self.get_by_id(models.Obituary, oid)
 		
 		# fetch related obituaries
-		related_count,related_obits = obit.fetch_related()
+		related_count, related_obits = obit.fetch_related()
 		
 		# get messages and narratives
-		message_keys = models.Message.query(ancestor = obit.key).iter(keys_only=True)
+		message_keys = models.Message.query(ancestor=obit.key).iter(keys_only=True)
 		message_futures = ndb.get_multi_async(message_keys)
-		narrative_keys = models.Narrative.query(ancestor = obit.key).iter(keys_only=True)
+		narrative_keys = models.Narrative.query(ancestor=obit.key).iter(keys_only=True)
 		narrative_futures = ndb.get_multi_async(narrative_keys)
 		messages = (f.get_result() for f in message_futures)
 		narratives = (f.get_result() for f in narrative_futures)
@@ -236,42 +249,42 @@ class ObituaryPageHandler(handlers.WebHandler):
 		upload_photo_url = blobstore.create_upload_url('{}/add_photo'.format(base_url))
 		
 		# convert related obits to lists for template
-		for key,val in related_obits.iteritems():
+		for key, val in related_obits.iteritems():
 			related_obits[key] = list(val)
 		# check if the oituary has been bookmarked by the current user
 		bookmarked = obit.is_bookmarked(user.key) if user else False
 		
 		# create urls for last search and view this obituary on landing
-		last_search_url = '/?'+session.get('last_search','') or ''
+		last_search_url = '/?' + session.get('last_search', '') or ''
 		view_on_map_url = '/?oid={}'.format(obit.key.id())
-		
 		
 		template_values = {
 						# data variables
-						'obituary' : obit,
-						'bookmarked' : bookmarked,
-						'messages' : messages,
-						'narratives' : narratives,
+						'obituary': obit,
+						'bookmarked': bookmarked,
+						'messages': messages,
+						'narratives': narratives,
 						# update entity variables
-						'edit_data_url' : base_url,
-						'add_message_url' : base_url+'/add_message',
-						'add_narrative_url' : base_url+'/add_narrative',
-						'upload_photo_url' : upload_photo_url,
+						'edit_data_url': base_url,
+						'add_message_url': base_url + '/add_message',
+						'add_narrative_url': base_url + '/add_narrative',
+						'upload_photo_url': upload_photo_url,
 						# state variables
-						'logged_in' : logged_in,
-						'admin' : admin,
-						'editable' : admin or logged_in, # true if logged in or admin
-						'relatives' : related_obits,
-						'related_count' : related_count,
-						'last_search_url' : last_search_url,
-						'view_on_map_url' : view_on_map_url
+						'logged_in': logged_in,
+						'admin': admin,
+						'editable': admin or logged_in,  # true if logged in or admin
+						'relatives': related_obits,
+						'related_count': related_count,
+						'last_search_url': last_search_url,
+						'view_on_map_url': view_on_map_url
 						}
 #		assert False, template_values['relatives']['mothers_name']
 #		self.response.out.write(template_values)
 #		self.response.out.write(obit.get_photo_urls())
 		template = jinja_environment.get_template('templates/obituary_page.html')
 		self.response.out.write(template.render(template_values))
-	def post(self,oid):
+	
+	def post(self, oid):
 		'''
 		Logged in person can edit the obituary info
 		'''
@@ -284,11 +297,11 @@ class ObituaryPageHandler(handlers.WebHandler):
 			assert obit, 'Invalid oid'
 			
 			# dates
-			obit.dob = self.rget('dob',self.parse_date) or obit.dob
-			obit.dod = self.rget('dod',self.parse_date) or obit.dod
+			obit.dob = self.rget('dob', self.parse_date) or obit.dob
+			obit.dod = self.rget('dod', self.parse_date) or obit.dod
 			
 			# birth/death locations
-			obit.pob = self.rget('pob',str) or obit.pob
+			obit.pob = self.rget('pob', str) or obit.pob
 			obit.pod = self.rget('pod') or obit.pod
 			
 			# other
@@ -302,12 +315,14 @@ class ObituaryPageHandler(handlers.WebHandler):
 			# replace the modified obituary
 			ndb.transaction(lambda: obit.put())
 			
-		except Exception,e:
+		except Exception, e:
 			logging.info(e.message)
 		finally:
 			return self.redirect(self.request.referrer)
-class AddPhotoHandler(blobstore_handlers.BlobstoreUploadHandler,handlers.WebHandler):
-	def post(self,oid):
+
+
+class AddPhotoHandler(blobstore_handlers.BlobstoreUploadHandler, handlers.WebHandler):
+	def post(self, oid):
 		'''
 		A user is uploading another image for the obituary page
 		'''
@@ -325,7 +340,7 @@ class AddPhotoHandler(blobstore_handlers.BlobstoreUploadHandler,handlers.WebHand
 								# params
 								img_key=key)
 			
-		except Exception,e:
+		except Exception, e:
 			utils.log_error(e)
 			
 		finally:
@@ -333,7 +348,7 @@ class AddPhotoHandler(blobstore_handlers.BlobstoreUploadHandler,handlers.WebHand
 		
 	
 class AddMessageHandler(handlers.WebHandler):
-	def post(self,oid):
+	def post(self, oid):
 		'''
 		A user is adding a message to loved ones
 		'''
@@ -342,23 +357,25 @@ class AddMessageHandler(handlers.WebHandler):
 			assert obit, 'Invalid oid: {}'.format(oid)
 			author = self.get_user_from_session()
 			# message details
-			author_name = self.rget('author_name',str)
-			message = self.rget('message',str,True)
+			author_name = self.rget('author_name', str)
+			message = self.rget('message', str, True)
 			# create the message
 			self.create_entity(
 							models.Message,
 							obit.key,
-							author_key = author.key if author else None,
-							message = message,
-							author_name = author_name
+							author_key=author.key if author else None,
+							message=message,
+							author_name=author_name
 							)
-		except Exception,e:
+		except Exception, e:
 			utils.log_error(e)
 		finally:
 			# redirect back to obit page
 			return self.redirect(self.request.referrer)
+
+
 class AddNarrativeHandler(handlers.WebHandler):
-	def post(self,oid):
+	def post(self, oid):
 		'''
 		A user is adding a message about the deceased
 		'''
@@ -367,51 +384,54 @@ class AddNarrativeHandler(handlers.WebHandler):
 			assert obit, 'Invalid oid: {}'.format(oid)
 			author = self.get_user_from_session()
 			# message details
-			author_name = self.rget('author_name',str)
-			message = self.rget('message',str,True)
+			author_name = self.rget('author_name', str)
+			message = self.rget('message', str, True)
 			# create the message
 			self.create_entity(
 							models.Narrative,
 							obit.key,
-							author_key = author.key if author else None,
-							message = message,
-							author_name = author_name
+							author_key=author.key if author else None,
+							message=message,
+							author_name=author_name
 							)
 			
 		finally:
 			# redirect back to obit page
 			return self.redirect(self.request.referrer)
+
+
 class LoginHandler(handlers.WebHandler):
 	def get(self):
 		'''Login page. No more, no less.
 		'''
 		template_values = {
-						'error' : self.rget('error',bool),
-						'post_url' : self.request.url,
-						'admin' : google_users.is_current_user_admin()
+						'error': self.rget('error', bool),
+						'post_url': self.request.url,
+						'admin': google_users.is_current_user_admin()
 						}
 		template = jinja_environment.get_template('templates/log_in.html')
 		self.response.out.write(template.render(template_values))
+	
 	def post(self):
 		'''
 		User logs in via ajax
 		'''
 		try:
-			email = self.rget('email',str,True)
+			email = self.rget('email', str, True)
 			
 			# grab an existing user and check if pw matches the stored pw
 			user = models.WebUser.query(models.WebUser.email == email).get()
 			
 			user_salt = user.pw.salt
 			existing_hashed_pw = user.pw.pw
-			input_pw = self.rget('pw',str,True)
-			input_hashed_pw,_ = self.hash_password(input_pw, user_salt)
+			input_pw = self.rget('pw', str, True)
+			input_hashed_pw, _ = self.hash_password(input_pw, user_salt)
 			assert existing_hashed_pw == input_hashed_pw, 'Invalid email password combination'
 			
 			# log user in
 			uid = user.key.id()
 			
-		except Exception,e:
+		except Exception, e:
 			utils.log_error(e)
 			ref = self.request.referrer.split('?')[0]
 			new_url = '{}?error=true'.format(ref)
@@ -424,6 +444,7 @@ class LoginHandler(handlers.WebHandler):
 			except KeyError:
 				return self.redirect('/')
 			
+
 class LogoutHandler(handlers.WebHandler):
 	def get(self):
 		'''
@@ -431,14 +452,16 @@ class LogoutHandler(handlers.WebHandler):
 		'''
 		self.log_out()
 		return self.redirect(self.request.referrer)
+
+
 class CreateAccountHandler(handlers.WebHandler):
 	def get(self):
 		'''Create account page. No more, no less.
 		'''
 		template_values = {
-						'error' : self.rget('error',str),
-						'post_url' : self.request.url,
-						'admin' : google_users.is_current_user_admin()
+						'error': self.rget('error', str),
+						'post_url': self.request.url,
+						'admin': google_users.is_current_user_admin()
 						}
 		template = jinja_environment.get_template('templates/sign_up.html')
 		self.response.out.write(template.render(template_values))
@@ -454,9 +477,9 @@ class CreateAccountHandler(handlers.WebHandler):
 		class PWLength(Exception):
 			'''Passwords must be at least 6 characters'''
 		try:
-			email = self.rget('email',str,True)
-			pw = self.rget('pw',str,True)
-			pw_2 = self.rget('pw_2',str,True)
+			email = self.rget('email', str, True)
+			pw = self.rget('pw', str, True)
+			pw_2 = self.rget('pw_2', str, True)
 			if pw != pw_2:
 				raise PWDontMatch
 			elif len(pw) < 6:
@@ -466,7 +489,7 @@ class CreateAccountHandler(handlers.WebHandler):
 				raise EmailExists
 			
 			# create the user
-			user = self.create_web_user(email,pw)
+			user = self.create_web_user(email, pw)
 			
 			# log user in
 			uid = user.key.id()
@@ -494,8 +517,10 @@ class CreateAccountHandler(handlers.WebHandler):
 				return self.redirect(session['last_page'])
 			except KeyError:
 				return self.redirect('/')
+
+
 class BookmarkHandler(handlers.WebHandler):
-	def get(self,oid):
+	def get(self, oid):
 #		try:
 		oid = int(oid)
 		user = self.get_user_from_session()
@@ -514,16 +539,19 @@ class BookmarkHandler(handlers.WebHandler):
 		
 		return self.redirect('/obituary/{}'.format(oid))
 
+
 class RemoveBookmarkHandler(handlers.WebHandler):
-	def get(self,oid):
+	def get(self, oid):
 		try:
 			oid = int(oid)
 			user = self.get_user_from_session()
 			user.remove_bookmark(oid)
-		except Exception,e:
+		except Exception, e:
 			logging.error(e)
 		finally:
 			return self.redirect(self.request.referrer)
+
+
 class ViewBookmarksHandler(handlers.WebHandler):
 	def get(self):
 		'''A user is viewing all of their bookmarked obituaries
@@ -531,10 +559,10 @@ class ViewBookmarksHandler(handlers.WebHandler):
 		user = self.get_user_from_session()
 		logged_in = True if user else False
 		if logged_in:
-			# get all bookmarks 
-			bm_keys = models.Bookmark.query(ancestor = user.key).iter(keys_only=True)
+			# get all bookmarks
+			bm_keys = models.Bookmark.query(ancestor=user.key).iter(keys_only=True)
 			
-			obit_keys = (ndb.Key(models.Obituary,key.id()) for key in bm_keys)
+			obit_keys = (ndb.Key(models.Obituary, key.id()) for key in bm_keys)
 			obits = ndb.get_multi(obit_keys)
 		else:
 			# set last page for when they log in
@@ -544,25 +572,68 @@ class ViewBookmarksHandler(handlers.WebHandler):
 			# no obituaries
 			obits = []
 		template_values = {
-						'logged_in' : logged_in,
-						'bookmarks' : obits,
-						'admin' : google_users.is_current_user_admin()
+						'logged_in': logged_in,
+						'bookmarks': obits,
+						'admin': google_users.is_current_user_admin()
 						}
 		template = jinja_environment.get_template('templates/bookmarks.html')
 		return self.response.out.write(template.render(template_values))
-	
+
+
+class SpoofHandler(handlers.WebHandler):
+	def get(self):
+		'''
+		User is uploading an obituary.
+		'''
+		logging.info(self.request.params)
+		session = get_current_session()
+		user = self.get_user_from_session(session)
+
+		ghashes = ['9zvz9xtfqc87p', '9zvxvsvqcj4r3',
+		'cbj813gv2bcw8', 'cbj21z7prxwj6', '9zydysdhnnpup']
+		for ghash in ghashes:
+			dob = self.rget('dob', self.parse_date)
+			dod = self.rget('dod', self.parse_date)
+			
+			pob = self.rget('pob')
+			pod = self.rget('pod')
+			
+			name = self.rget('obit_name')
+			mothers_name = self.rget('mothers_name')
+			fathers_name = self.rget('fathers_name')
+			cod = self.rget('cod')
+			tombstone_message = self.rget('tombstone_message')
+			
+	#		assert dob or dod or pob or pod or name or tombstone_message, \
+	#			'Must provide one piece of information'
+			self.create_entity(models.Obituary,
+									name=name,
+									dob=dob,
+									dod=dod,
+									pob=pob,
+									pod=pod,
+									ghash=ghash,
+									mothers_name=mothers_name,
+									fathers_name=fathers_name,
+									cod=cod,
+									tombstone_message=tombstone_message,
+									uploader_key=user.key
+									)
+		self.say('done!')
 app = webapp2.WSGIApplication([
-							('/search',SearchHandler),
-							('/add',AddHandler),
-							('/obituary/(.*)/add_narrative',AddNarrativeHandler),
-							('/obituary/(.*)/add_message',AddMessageHandler),
-							('/obituary/(.*)/add_photo',AddPhotoHandler),
-							('/obituary/(.*)/bookmark',BookmarkHandler),
-							('/obituary/(.*)/remove_bookmark',RemoveBookmarkHandler),
-							('/obituary/(.*)',ObituaryPageHandler),
-							('/bookmarks',ViewBookmarksHandler),
-							('/log_in',LoginHandler),
-							('/log_out',LogoutHandler),
-							('/create_account',CreateAccountHandler),
-							('/',LandingHandler),
+							('/search', SearchHandler),
+							('/add', AddHandler),
+							('/obituary/(.*)/add_narrative', AddNarrativeHandler),
+							('/obituary/(.*)/add_message', AddMessageHandler),
+							('/obituary/(.*)/add_photo', AddPhotoHandler),
+							('/obituary/(.*)/bookmark', BookmarkHandler),
+							('/obituary/(.*)/remove_bookmark', RemoveBookmarkHandler),
+							('/obituary/(.*)', ObituaryPageHandler),
+							('/bookmarks', ViewBookmarksHandler),
+							('/log_in', LoginHandler),
+							('/log_out', LogoutHandler),
+							('/create_account', CreateAccountHandler),
+							('/spoof', SpoofHandler),
+							('/', LandingHandler),
+
 							])

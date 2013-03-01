@@ -9,19 +9,22 @@ import models
 import utils
 import uuid
 import webapp2
+from geo import geohash
+
 
 class BaseHandler(webapp2.RequestHandler):
 	class SessionError(Exception):
 		'''Session is invalid'''
 	class InputError(Exception):
 		'''Input is invalid'''
-	def say(self,stuff=''):
+	def say(self, stuff=''):
 		'''For debugging
 		'''
 		self.response.headers['Content-Type'] = 'text/plain'
 		self.response.out.write('\n')
 		self.response.out.write(stuff)
-	def get_by_id(self,model,id_):
+	
+	def get_by_id(self, model, id_):
 		'''
 		Wrapper for model.get_by_id to assure that id is always int
 		@param model: the model
@@ -31,7 +34,7 @@ class BaseHandler(webapp2.RequestHandler):
 		'''
 		return model.get_by_id(int(id_))
 		
-	def rget(self,key,predicate=None,required = False):
+	def rget(self, key, predicate=None, required=False):
 		'''
 		I hate typing out self.request.get all the time
 		@param key: http request param
@@ -49,7 +52,7 @@ class BaseHandler(webapp2.RequestHandler):
 		if predicate is None:
 			predicate = str
 		val = self.request.get(key) or None
-		logging.info('{}: {}'.format(key,val))
+		logging.info('{}: {}'.format(key, val))
 		# raise InputError if required but missing
 		if required is True and val is None:
 			e = '{}: required'.format(key)
@@ -60,13 +63,13 @@ class BaseHandler(webapp2.RequestHandler):
 			# typecast the input
 			try:
 				val = predicate(val)
-			except ValueError,e:
-				raise self.InputError('{}: {}'.format(key,e.message))
+			except ValueError, e:
+				raise self.InputError('{}: {}'.format(key, e.message))
 			else:
 				# default None if val is falsy
 				return val
 
-	def send_server_error(self,status_message='Server Error.'):
+	def send_server_error(self, status_message='Server Error.'):
 		'''
 		Special response indicating a server error
 		@param status_message: Message to describe what went wrong
@@ -75,15 +78,17 @@ class BaseHandler(webapp2.RequestHandler):
 		utils.log_error()
 		# 500 == sever error
 		return self.send_response(500, status_message)
-	def send_success(self,response):
+	
+	def send_success(self, response):
 		'''
 		Special response indicating success
 		@param response: response data
 		@type response: dict
 		'''
 		# 200 == OK
-		return self.send_response(200,'OK',response)
-	def send_response(self,code,message,response=None):
+		return self.send_response(200, 'OK', response)
+	
+	def send_response(self, code, message, response=None):
 		'''
 		Generic response method
 		@param code: http status code
@@ -94,9 +99,9 @@ class BaseHandler(webapp2.RequestHandler):
 		@type response: dict
 		'''
 		reply = {
-				'status':{
-					'code' : code,
-					'message' : str(message)
+				'status': {
+					'code': code,
+					'message': str(message)
 					}
 				}
 		if response is not None:
@@ -104,7 +109,7 @@ class BaseHandler(webapp2.RequestHandler):
 		
 		try:
 			to_write = json.dumps(reply)
-		except TypeError,e:
+		except TypeError, e:
 			return self.send_server_error(e.message)
 		else:
 			return self.response.out.write(to_write)
@@ -117,24 +122,34 @@ class BaseHandler(webapp2.RequestHandler):
 		@return: a list of obituaries
 		@rtype: list
 		'''
-		name =  self.rget('name',str) or None
-		pob = self.rget('pob',str) or None
-		pod = self.rget('pod',str) or None
+		name = self.rget('name', str) or None
+		pob = self.rget('pob', str) or None
+		pod = self.rget('pod', str) or None
 		
 		# join the string params together if they exist
-		search_tokens = utils.tokenize_multi(name,pob,pod)
+		search_tokens = utils.tokenize_multi(name, pob, pod)
 		logging.info(search_tokens)
-		dob = self.rget('dob',self.parse_date) or None
-		dod = self.rget('dod',self.parse_date) or None
+		dob = self.rget('dob', self.parse_date) or None
+		dod = self.rget('dod', self.parse_date) or None
 		
+		lat = self.rget('lat', float)
+		lon = self.rget('lon', float)
+
 		logging.info('Sending to search: ')
 		logging.info(search_tokens)
+
+		if lat and lon:
+			# search by location
+			ghash = geohash.encode(lat, lon)
+			ghash_list = geohash.expand(ghash)
+
+			precision = self.rget('precision', int) or 4
+			 
+			return utils.search(search_tokens, dob, dod, ghash_list, precision)
+		else:
+			return utils.search(search_tokens, dob, dod)
 		
-		return utils.search(search_tokens, dob, dod)
-		
-		
-	
-	def create_entity(self,model,parent_key=None,**params):
+	def create_entity(self, model, parent_key=None, **params):
 		'''
 		Creates an entity using transaction
 		@param model: model class
@@ -145,31 +160,35 @@ class BaseHandler(webapp2.RequestHandler):
 		@rtype: model
 		'''
 		@ndb.transactional
-		def create(id_,parent_key,**params):
-			ent = model(id=id_,parent=parent_key,**params)
+		def create(id_, parent_key, **params):
+			ent = model(id=id_, parent=parent_key, **params)
 			ent.put()
 			return ent
-		id_,_ = model.allocate_ids(1)
+		id_, _ = model.allocate_ids(1)
 		return create(
 					id_,
 					parent_key,
 					**params
 					)
+
+
 class WebHandler(BaseHandler):
 	'''
 	For the web needs
 	'''
-	def log_in(self,uid,session = None):
+	def log_in(self, uid, session=None):
 		if session is None:
 			session = get_current_session()
 		session['uid'] = uid
 		return session
-	def log_out(self,session = None):
+	
+	def log_out(self, session=None):
 		if session is None:
 			session = get_current_session()
 		session.terminate()
 		return session
-	def get_user_from_session(self,session=None):
+	
+	def get_user_from_session(self, session=None):
 		if session is None:
 			session = get_current_session()
 		try:
@@ -179,7 +198,8 @@ class WebHandler(BaseHandler):
 		else:
 			user = models.WebUser.get_by_id(uid)
 		return user
-	def hash_password(self,pw,salt=None):
+	
+	def hash_password(self, pw, salt=None):
 		'''
 		Hashes a password using a salt and hashlib
 		http://stackoverflow.com/questions/9594125/salt-and-hash-a-password-in-python
@@ -191,8 +211,9 @@ class WebHandler(BaseHandler):
 		if salt is None:
 			salt = uuid.uuid4().hex
 		hashed_password = hashlib.sha512(pw + salt).hexdigest()
-		return hashed_password,salt
-	def create_web_user(self,email,pw):
+		return hashed_password, salt
+	
+	def create_web_user(self, email, pw):
 		'''
 		Creating a new web user
 		@param email: the users email
@@ -204,13 +225,14 @@ class WebHandler(BaseHandler):
 		'''
 		hashed_pw, salt = self.hash_password(pw)
 		return self.create_entity(models.WebUser,
-								email = email,
-								pw = models.PasswordProperty(
+								email=email,
+								pw=models.PasswordProperty(
 															pw=hashed_pw,
 															salt=salt
 															)
 								)
-	def parse_date(self,date_str):
+	
+	def parse_date(self, date_str):
 		'''
 		Parses a date string into a datetime.date object
 		@param date_str: date in format yyyy-mm-dd
@@ -220,16 +242,18 @@ class WebHandler(BaseHandler):
 		@raise self.InputError: if date_str is not valid
 		'''
 		if date_str:
-			mm,dd,yyyy = [int(i) for i in date_str.split('/')]
-			d = datetime.date(yyyy,mm,dd)
+			mm, dd, yyyy = [int(i) for i in date_str.split('/')]
+			d = datetime.date(yyyy, mm, dd)
 			return d
 		else:
 			return None
+
+
 class APIHandler(BaseHandler):
 	'''
 	For the api needs
 	'''
-	def create_obituary(self,**params):
+	def create_obituary(self, **params):
 		'''
 		Creates an obituary, wrapping around self.create_entity
 		@return: obituary entity
@@ -241,9 +265,10 @@ class APIHandler(BaseHandler):
 		ob = self.create_entity(models.Obituary, **params)
 		# add the image as a child
 		for key in img_keys:
-			self.create_entity(models.Photo,ob.key,img_key=key)
+			self.create_entity(models.Photo, ob.key, img_key=key)
 		return ob
-	def parse_date(self,date_str):
+	
+	def parse_date(self, date_str):
 		'''
 		Parses a date string into a datetime.date object
 		@param date_str: date in format yyyy-mm-dd
@@ -253,15 +278,18 @@ class APIHandler(BaseHandler):
 		@raise self.InputError: if date_str is not valid
 		'''
 		if date_str:
-			yyyy,mm,dd = [int(i) for i in date_str.split('-')]
-			d = datetime.date(yyyy,mm,dd)
+			yyyy, mm, dd = [int(i) for i in date_str.split('-')]
+			d = datetime.date(yyyy, mm, dd)
 			return d
 		else:
 			return None
-class UploadHandler(blobstore_handlers.BlobstoreUploadHandler,APIHandler):
+
+
+class UploadHandler(blobstore_handlers.BlobstoreUploadHandler, APIHandler):
 	'''For uploading obituaries and images
 	'''
 	
+
 class AdminHandler(BaseHandler):
 	'''For the admin page
 	'''

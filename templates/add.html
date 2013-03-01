@@ -166,17 +166,17 @@
 	                    	<div class="input-container">
 	                    		<div class="addalert alert alert-danger" hidden>Please enter at least one piece of identifying information.</div>
 		                    	<div class="span4">
-				                    <label>Name:</label><input id="name" type="text" name="name" value="" placeholder="Name"><br />
-				                    <label>Date Born:</label><input id="dob" type="text" name="dob" value="" placeholder="MM/DD/YYYY"><br />
-				                    <label>Date Deceased:</label><input id="dod" type="text" name="dod" value="" placeholder="MM/DD/YYYY"><br />
-				                    <label>Place Born:</label><input id="pob" type="text" name="pob" value="" placeholder="Boston, MA"><br />
-				                    <label>Place Deceased:</label><input id="pod" type="text" name="pod" value="" placeholder="San Diego, CA"><br />
+				                    <label>Name:</label><input id="name" type="text" name="obit_name" value="{{form.obit_name}}" placeholder="Name"><br />
+				                    <label>Date Born:</label><input id="dob" type="text" name="dob" value="{{form.dob}}" placeholder="MM/DD/YYYY"><br />
+				                    <label>Date Deceased:</label><input id="dod" type="text" name="dod" value="{{form.dod}}" placeholder="MM/DD/YYYY"><br />
+				                    <label>Place Born:</label><input id="pob" type="text" name="pob" value="{{form.pob}}" placeholder="Boston, MA"><br />
+				                    <label>Place Deceased:</label><input id="pod" type="text" name="pod" value="{{form.pod}}" placeholder="San Diego, CA"><br />
 		                    	</div>
 		                    	<div class="span4">
-				                    <label>Epitaph:</label><input id="epitaph" type="text" name="tombstone_message" value="" placeholder='"Quote"'/>
-				                    <label>Mother's Name:</label><input id="mothers_name" type="text" name="mothers_name" value="" placeholder="Name"/>
-				                    <label>Father's Name:</label><input id="fathers_name" type="text" name="fathers_name" value="" placeholder="Name"/>
-				                    <label>Cause of Death:</label><input id="cod" type="text" name="cod" value="" placeholder="Cause"/>
+				                    <label>Epitaph:</label><input id="epitaph" type="text" name="tombstone_message" value="{{form.tombstone_message}}" placeholder='"Quote"'/>
+				                    <label>Mother's Name:</label><input id="mothers_name" type="text" name="mothers_name" value="{{form.mothers_name}}" placeholder="Name"/>
+				                    <label>Father's Name:</label><input id="fathers_name" type="text" name="fathers_name" value="{{form.fathers_name}}" placeholder="Name"/>
+				                    <label>Cause of Death:</label><input id="cod" type="text" name="cod" value="{{form.cod}}" placeholder="Cause"/>
 		                    	</div>
 		                    	<div class="span8">
 		                    		<hr>

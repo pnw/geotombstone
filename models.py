@@ -2,8 +2,11 @@ from google.appengine.ext import ndb
 from geo import geohash
 import utils
 import logging
+
+
 class BaseModel(ndb.Model):
 	pass
+
 
 class AppUser(BaseModel):
 	'''
@@ -13,17 +16,22 @@ class AppUser(BaseModel):
 	email = ndb.StringProperty(required=True)
 	phone = ndb.StringProperty()
 	address = ndb.StringProperty()
+	
 	def package(self):
 		return self.to_dict()
+
+
 class PasswordProperty(ndb.Model):
-	pw = ndb.StringProperty(required = True,indexed = False)
-	salt = ndb.StringProperty(required = True,indexed = False)
+	pw = ndb.StringProperty(required=True, indexed=False)
+	salt = ndb.StringProperty(required=True, indexed=False)
+
+
 class WebUser(BaseModel):
 	'''
 	A user account on the website
 	'''
-	email = ndb.StringProperty(required = True)
-	pw = ndb.StructuredProperty(PasswordProperty,required = True,indexed = False)
+	email = ndb.StringProperty(required=True)
+	pw = ndb.StructuredProperty(PasswordProperty, required=True, indexed=False)
 	
 	# replicate app user fields for packaging up to phone
 	public_email = ndb.StringProperty()
@@ -34,74 +42,84 @@ class WebUser(BaseModel):
 	def package(self):
 		'''Replicates the packagein AppUser'''
 		return {
-			'name' : self.name or '',
-			'email' : self.public_email or '',
-			'phone' : self.phone or '',
-			'address' : self.address or ''
+			'name': self.name or '',
+			'email': self.public_email or '',
+			'phone': self.phone or '',
+			'address': self.address or ''
 			}
+	
 	@ndb.transactional
-	def add_bookmark(self,obit_id):
+	def add_bookmark(self, obit_id):
 		bm = Bookmark.get_by_id(obit_id, parent=self.key)
 		if not bm:
 			# bookmark doesnt already exist, so create it
-			Bookmark(id=obit_id,parent=self.key).put()
+			Bookmark(id=obit_id, parent=self.key).put()
+	
 	@ndb.transactional
-	def remove_bookmark(self,obit_id):
-		ndb.Key(Bookmark,obit_id,parent=self.key).delete()
+	def remove_bookmark(self, obit_id):
+		ndb.Key(Bookmark, obit_id, parent=self.key).delete()
 		
 		
 class Bookmark(ndb.Model):
 	'''User bookmarks an obituary'''
-	obit_key = ndb.ComputedProperty(lambda self: ndb.Key(Obituary,self.key.id()))
+	obit_key = ndb.ComputedProperty(lambda self: ndb.Key(Obituary, self.key.id()))
+
+
 class SearchableDate(ndb.Model):
 	'''Date in a format that can searched without inequalities
 	'''
 	year = ndb.IntegerProperty()
 	month = ndb.IntegerProperty()
 	day = ndb.IntegerProperty()
+
+
 class Photo(BaseModel):
 	'''
 	A photo attatched to the obituary
 	'''
 	img_key = ndb.BlobKeyProperty()
+	
 	def _pre_put_hook(self):
 		'''Assure the photo is attached to something'''
 		assert self.key.parent()
+	
 	@property
 	def img_url(self):
-		return '{}/photo/{}?p={}'.format(utils.BASE_URL,self.key.parent().id(),self.key.id())
+		return '{}/photo/{}?p={}'.format(utils.BASE_URL, self.key.parent().id(), self.key.id())
 #		return '{}/photo/{}?p={}'.format("",self.key.parent().id(),self.key.id())
+
+
 class Obituary(BaseModel):
 	'''
 	A record of someones tombstone
 	'''
 	
 	name = ndb.StringProperty()
-	name_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.name),repeated = True)
+	name_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.name), repeated=True)
 	
-	dob = ndb.DateProperty() # date of birth
+	dob = ndb.DateProperty()  # date of birth
 	dob_searchable = ndb.StructuredProperty(SearchableDate)
 	
-	dod = ndb.DateProperty() # date of death
+	dod = ndb.DateProperty()  # date of death
 	dod_searchable = ndb.StructuredProperty(SearchableDate)
 	
-	pob = ndb.StringProperty() # place of birth
-	pob_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.pob),repeated = True)
+	pob = ndb.StringProperty()  # place of birth
+	pob_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.pob), repeated=True)
 	
-	pod = ndb.StringProperty() # place of death
-	pod_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.pod),repeated = True)
+	pod = ndb.StringProperty()  # place of death
+	pod_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.pod), repeated=True)
 	
-	ghash = ndb.StringProperty(required = True)
-	ghash_list = ndb.ComputedProperty(lambda self: utils.listify_ghash(self.ghash),repeated = True)
+	ghash = ndb.StringProperty(required=True)
+	ghash_list = ndb.ComputedProperty(lambda self: utils.listify_ghash(self.ghash), repeated=True)
 	
 	mothers_name = ndb.StringProperty()
-	mothers_name_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.mothers_name),repeated = True)
+	mothers_name_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.mothers_name), repeated=True)
 	
 	fathers_name = ndb.StringProperty()
-	fathers_name_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.fathers_name),repeated = True)
+	fathers_name_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.fathers_name), repeated=True)
 	
-	cod = ndb.StringProperty() # cause of death
-	cod_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.cod),repeated = True)
+	cod = ndb.StringProperty()  # cause of death
+	cod_tags = ndb.ComputedProperty(lambda self: utils.tokenize(self.cod), repeated=True)
 	
 	uploader_key = ndb.KeyProperty()
 	tombstone_message = ndb.TextProperty()
@@ -113,10 +131,11 @@ class Obituary(BaseModel):
 															self.pod
 															),
 							repeated=True)
-	def is_bookmarked(self,user_key):
+	
+	def is_bookmarked(self, user_key):
 		'''
 		Checks if the obit is bookmarked by the current user
-		@param user_key: the 
+		@param user_key: the
 		@type user_key:
 		@return: whether or not the current obit is bookmarked by current user
 		@rtype: bool
@@ -129,14 +148,14 @@ class Obituary(BaseModel):
 		Fetches obituaries that are related to this one for each field
 		'''
 		keys = {
-			'name' : [],
-			'pob' : [],
-			'pod' : [],
-			'mothers_name' : [],
-			'fathers_name' : [],
-			'cod' : [],
-			'dob' : [],
-			'dod' : [],
+			'name': [],
+			'pob': [],
+			'pod': [],
+			'mothers_name': [],
+			'fathers_name': [],
+			'cod': [],
+			'dob': [],
+			'dod': [],
 			}
 		if self.name_tags:
 			keys['name'] = Obituary.query(Obituary.name_tags.IN(self.name_tags)).iter(keys_only=True)
@@ -157,34 +176,37 @@ class Obituary(BaseModel):
 		# fetch the entity futures
 		related_count = 0
 		relative_futures = {}
-		for field,key_list in keys.iteritems():
-			key_list = filter(lambda k: k != self.key,key_list)
+		for field, key_list in keys.iteritems():
+			key_list = filter(lambda k: k != self.key, key_list)
 			related_count += key_list.__len__()
 			relative_futures[field] = ndb.get_multi_async(key_list)
 		
 		# fetch the entities
 		relatives = {}
-		for field,futures in relative_futures.iteritems():
+		for field, futures in relative_futures.iteritems():
 			relatives[field] = (f.get_result() for f in futures)
-		return related_count,relatives
+		return related_count, relatives
 
 	def _pre_put_hook(self):
 		if self.dob:
 			self.dob_searchable = self.searchatize_date(self.dob)
 		if self.dod:
 			self.dod_searchable = self.searchatize_date(self.dod)
+	
 	@property
 	def dob_web(self):
 		if self.dob:
-			return '{}/{}/{}'.format(self.dob.month,self.dob.day,self.dob.year)
+			return '{}/{}/{}'.format(self.dob.month, self.dob.day, self.dob.year)
 		else:
 			return ''
+	
 	@property
 	def dod_web(self):
 		if self.dod:
-			return '{}/{}/{}'.format(self.dod.month,self.dod.day,self.dod.year)
+			return '{}/{}/{}'.format(self.dod.month, self.dod.day, self.dod.year)
 		else:
 			return ''
+	
 	@staticmethod
 	def fetch_author_multi(obits):
 		'''
@@ -198,71 +220,85 @@ class Obituary(BaseModel):
 		uploader_futures = ndb.get_multi_async(uploader_keys)
 		uploaders = (f.get_result() for f in uploader_futures)
 		return uploaders
+	
 	@property
 	def message_keys(self):
-		return Message.query(ancestor = self.key).iter(keys_only=True)
+		return Message.query(ancestor=self.key).iter(keys_only=True)
+	
 	@property
 	def narrative_keys(self):
-		return Narrative.query(ancestor = self.key).iter(keys_only=True)
+		return Narrative.query(ancestor=self.key).iter(keys_only=True)
+	
 	@staticmethod
 	def fetch_messages_multi(obits):
 		return _fetch_attached_multi_prop_multi(obits, 'message_keys')
+	
 	@staticmethod
 	def fetch_narratives_multi(obits):
 		return _fetch_attached_multi_prop_multi(obits, 'narrative_keys')
+	
 	@property
 	def key_id(self):
 		return self.key.id()
+	
 	@property
 	def geo_point(self):
 		'''
 		@return: the obituarys geo_point
 		@rtype: dict
 		'''
-		lat,lon = geohash.decode(self.ghash)
+		lat, lon = geohash.decode(self.ghash)
 		return {
-			'lat' : lat,
-			'lon' : lon
+			'lat': lat,
+			'lon': lon
 			}
+	
 	@property
 	def photos(self):
-		return Photo.query(ancestor = self.key).iter()
+		return Photo.query(ancestor=self.key).iter()
+	
 	def get_photo_urls(self):
 		return [i.img_url for i in self.photos]
+	
 	@property
 	def obituary_url(self):
-		return '{}/obituary/{}'.format(utils.BASE_URL,self.key.id())
+		return '{}/obituary/{}'.format(utils.BASE_URL, self.key.id())
+	
 	@property
 	def bookmark_url(self):
-		return '{}/obituary/{}/bookmark'.format(utils.BASE_URL,self.key.id())
+		return '{}/obituary/{}/bookmark'.format(utils.BASE_URL, self.key.id())
+	
 	@property
 	def remove_bookmark_url(self):
-		return '{}/obituary/{}/remove_bookmark'.format(utils.BASE_URL,self.key.id())
+		return '{}/obituary/{}/remove_bookmark'.format(utils.BASE_URL, self.key.id())
+	
 	@property
 	def delete_obituary_url(self):
 		return '/admin/obituaries/{}/delete'.format(self.key.id())
-	def package(self,uploader = None,messages = None, narratives = None,web=False):
+	
+	def package(self, uploader=None, messages=None, narratives=None, web=False):
 		'''
 		Packages an obituary into a dict for the phone
 		@rtype: dicts
 		'''
 		to_return = {
-					'oid' : self.key.id(),
-					'geo_point' : self.geo_point,
-					'name' : self.name or '',
-					'dob' : str(self.dob or '') if web is False else self.dob_web,
-					'dod' : str(self.dod or '') if web is False else self.dod_web,
-					'pob' : self.pob or '',
-					'pod' : self.pod or '',
-					'tombstone_message' : self.tombstone_message or '',
-					'photo_urls' : self.get_photo_urls(),
-					'obituary_url' : self.obituary_url,
-					'uploader' : uploader if uploader is not None else {},
-					'messages' : messages if messages is not None else [],
-					'narratives' : narratives if narratives is not None else [],
+					'oid': self.key.id(),
+					'geo_point': self.geo_point,
+					'name': self.name or '',
+					'dob': str(self.dob or '') if web is False else self.dob_web,
+					'dod': str(self.dod or '') if web is False else self.dod_web,
+					'pob': self.pob or '',
+					'pod': self.pod or '',
+					'tombstone_message': self.tombstone_message or '',
+					'photo_urls': self.get_photo_urls(),
+					'obituary_url': self.obituary_url,
+					'uploader': uploader if uploader is not None else {},
+					'messages': messages if messages is not None else [],
+					'narratives': narratives if narratives is not None else [],
 					}
 		return to_return
-	def count_tag_matches(self,search_tokens):
+	
+	def count_tag_matches(self, search_tokens):
 		'''
 		Counts the number of obituary tags that match a list
 		of search tags
@@ -271,7 +307,7 @@ class Obituary(BaseModel):
 		@return: the number of tag matches
 		@rtype: int
 		'''
-		return filter(lambda tag: tag in search_tokens,self.tags).__len__()
+		return filter(lambda tag: tag in search_tokens, self.tags).__len__()
 		
 	@staticmethod
 	def searchatize_date(day):
@@ -291,32 +327,39 @@ class Obituary(BaseModel):
 		return d
 	
 		
-		
 class Message(BaseModel):
 	'''
 	A message to loved ones
 	'''
-	message = ndb.TextProperty(required = True)
+	message = ndb.TextProperty(required=True)
 	author_key = ndb.KeyProperty()
 	author_name = ndb.StringProperty()
+	
 	def _pre_put_hook(self):
 		'''Assure the message has a parent Obituary'''
 		assert self.key.parent(), 'Message needs a parent'
+	
 	def package(self):
-		return self.to_dict(include=('message','author_name'))
+		return self.to_dict(include=('message', 'author_name'))
+
+
 class Narrative(BaseModel):
 	'''
 	A narrative about the deceased person
 	'''
-	message = ndb.TextProperty(required = True)
+	message = ndb.TextProperty(required=True)
 	author_key = ndb.KeyProperty()
 	author_name = ndb.StringProperty()
+	
 	def _pre_put_hook(self):
 		'''Assure the narrative has a parent Obituary'''
 		assert self.key.parent(), 'Narrative needs a parent'
+	
 	def package(self):
-		return self.to_dict(include=('message','author_name'))
-def _fetch_attached_multi_prop_multi(entities,attr):
+		return self.to_dict(include=('message', 'author_name'))
+
+
+def _fetch_attached_multi_prop_multi(entities, attr):
 	'''
 	Used for batch fetching referenced properties from a list of entities
 	@param entities: a list of model instances

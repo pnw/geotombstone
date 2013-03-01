@@ -13,26 +13,28 @@ if os.environ['SERVER_SOFTWARE'].startswith('Development') == True:
 else:
 	BASE_URL = 'http://geotombstone.com'
 
+
 def log_error(message=''):
-	_,_,exc_trace = sys.exc_info()
+	_, _, exc_trace = sys.exc_info()
 	logging.error(traceback.format_exc(exc_trace))
 	if message:
 		logging.error(message)
+
 
 def tokenize(text):
 	'''
 	Tokenizes and stems a string
 	'''
-	logging.info('tokenizing: '+str(text))
+	logging.info('tokenizing: ' + str(text))
 	if text is None:
 		return None
-	text = text.encode('ascii','replace')
+	text = text.encode('ascii', 'replace')
 	# chars to be converted to space
-	exclude = ['_','/',',','-','|',' ']
+	exclude = ['_', '/', ',', '-', '|', ' ']
 	# remove punctuation
 	for punct in string.punctuation:
 		if punct not in exclude:
-			text = text.replace(punct,'')
+			text = text.replace(punct, '')
 	
 	# replace special chars with spaces
 	for c in exclude:
@@ -43,9 +45,12 @@ def tokenize(text):
 	stemmer = PorterStemmer()
 	tokens = [stemmer.stem(t.lower()) for t in tokenizer.tokenize(text)]
 	return tokens
+
+
 def tokenize_multi(*args):
-	text = ' '.join(filter(None,args))
+	text = ' '.join(filter(None, args))
 	return tokenize(text)
+
 
 def listify_ghash(ghash):
 	'''
@@ -55,10 +60,10 @@ def listify_ghash(ghash):
 	@return: a list of sub-ghashes
 	@rtype: list
 	'''
-	return [ghash[:idx] for idx in range(1,len(ghash)+1)]
+	return [ghash[:idx] for idx in range(1, len(ghash) + 1)]
 
 	
-def search(search_tokens=None,dob=None,dod=None,ghashes=None,ghash_precision=4):
+def search(search_tokens=None, dob=None, dod=None, ghashes=None, ghash_precision=4):
 	'''
 	Searches obituaries given the following parameters
 	@param search_tokens: a list of search tokens
@@ -72,11 +77,11 @@ def search(search_tokens=None,dob=None,dod=None,ghashes=None,ghash_precision=4):
 	'''
 	logging.info('in search: ')
 	logging.info(search_tokens)
-	logging.info('dob: '+str(dob))
-	logging.info('dod: '+str(dod))
+	logging.info('dob: ' + str(dob))
+	logging.info('dod: ' + str(dod))
 	qry = models.Obituary.query()
 	if search_tokens:
-		assert isinstance(search_tokens,list)
+		assert isinstance(search_tokens, list)
 		# combine all the tokens into one list for later when we count match freq.
 		qry = qry.filter(models.Obituary.tags.IN(search_tokens))
 	if dob:
@@ -96,13 +101,13 @@ def search(search_tokens=None,dob=None,dod=None,ghashes=None,ghash_precision=4):
 		qry = qry.filter(
 						models.Obituary.ghash_list.IN(ghashes)
 						)
-	obit_keys = qry.iter(keys_only = True)
+	obit_keys = qry.iter(keys_only=True)
 	obit_futures = ndb.get_multi_async(obit_keys)
 	obits = (o.get_result() for o in obit_futures)
 	
 	# sort the obituaries by the number of matched tags
 	if search_tokens:
 		obits = sorted(obits,
-					key = lambda o: o.count_tag_matches(search_tokens),
-					reverse = True)
+					key=lambda o: o.count_tag_matches(search_tokens),
+					reverse=True)
 	return obits
