@@ -185,8 +185,8 @@
 		                    		<div class="alert alert-danger owneralert" hidden>Please enter your information below:</div>
 			                    	<label>Your name:</label><input type="text" id="owner_name" name="owner_name" value="{{owner.name}}" placeholder='John Doe'/>
 				                    <label>Your email:</label><input type="text" id="owner_email" name="owner_email" value="{{owner.email}}" placeholder="john@doe.com"/>
-				                    <label>Your address:</label><input type="text" id="owner_address" name="owner_address" value="{{owner.address}}" placeholder="33 Union St. Boston, MA 02108"/>
-				                    <label>Your phone:</label><input type="text" id="owner_phone" name="owner_phone" value="{{owner.phone}}" placeholder="1-234-5678"/>
+				                    <!-- <label>Your address:</label><input type="text" id="owner_address" name="owner_address" value="{{owner.address}}" placeholder="33 Union St. Boston, MA 02108"/>
+				                    <label>Your phone:</label><input type="text" id="owner_phone" name="owner_phone" value="{{owner.phone}}" placeholder="1-234-5678"/> -->
 
 		                    	</div>
 	                    	</div>
@@ -254,14 +254,14 @@
 		        
 		        crd = map.getCenter();
 		        
-		        $("#lat").val(crd.Ya);
-		        $("#lon").val(crd.Za);
+		        $("#lat").val(crd.lat());
+		        $("#lon").val(crd.lng());
 		        
   
 		        if ($("#name").val() == "" && $("#dob").val() == "" && $("#dod").val() == "" && $("#pob").val() == "" && $("#pod").val() == "" && $("#cod").val() == "" && $("#epitaph").val() == "" && $("#mothers_name").val() == "" && $("#fathers_name").val() == ""){
 		        	$(".addalert").show(400)
 		        	$(".owneralert").hide()
-		        } else if ($("#owner_name").val() == "" || $("#owner_address").val() == "" || $("#owner_email").val() == "" || $("#owner_phone").val() == ""){
+		        } else if ($("#owner_name").val() == "" || $("#owner_email").val() == ""){
 		        	$(".owneralert").show(400)
 			        $(".addalert").hide()
 		        }else{

@@ -95,12 +95,20 @@ function doSearch(lat,lon){
 	var pod = $('#pod').val()
 	var dob = $('#dob').val()
 	var dod = $('#dod').val()
+
+	console.log(lat)
+	console.log(lon)
 	
 	base_url += '?name='+deceased_name
 	base_url += '&pob='+pob
 	base_url += '&pod='+pod
 	base_url += '&dob='+dob
 	base_url += '&dod='+dod
+
+	if (lat && lon){
+		base_url += '&lat='+lat
+		base_url += '&lon='+lon
+	}
 	
 	// add the oid
 	base_url += '&oid='+$('#oid').val();
@@ -139,11 +147,26 @@ function showAll(){
 	$("#searchForm").submit()
 }
 
+function nearMe(){
+	$("#deceased_name,#dob,#dod,#pob,#pod,#oid").val("");
+	crd = map.getCenter();
+		        
+    $("#lat").val(crd.lat());
+	$("#lon").val(crd.lng());
+	// $("#searchForm").submit()
+	doSearch(crd.lat(),crd.lng())
+}
+
 $(document).on("ready",function() { 
 	// initial search
 	$("#oid").val(oid);
 	$("#searchForm").submit();
 	$("#oid").val("");
+
+	$("#nearme").click(function(e){
+        e.preventDefault()
+        nearMe()
+	})
 	
 	$("#showall").click(function(e){
 		e.preventDefault()
